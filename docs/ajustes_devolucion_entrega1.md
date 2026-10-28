@@ -1,0 +1,12 @@
+# Ajustes realizados a partir de la devolución de la primera entrega
+
+| # | Observación del docente | Qué se hizo | Dónde |
+|---|---|---|---|
+| 1 | La variable objetivo mide la asistencia **actual**, pero el contexto hablaba de anticipar si el joven *continuará* estudiando. | El contexto se reescribió: el modelo estima si el joven asiste en el momento de la encuesta y no predice una decisión futura. | [descripcion_y_objetivos.md](descripcion_y_objetivos.md), sección 1 |
+| 2 | El filtro "secundario completo" podía excluir a quienes ya cursan el nivel superior. | Se usa `NIVEL_ED` ∈ {4, 5}. Quien cursa el superior figura con 5. Se muestra con los datos: de 13.883 observaciones, 8.274 tienen `NIVEL_ED = 5`. | [Notebook](../notebooks/1.0-lei-descripcion-dataset-eph.ipynb), sección 4 |
+| 3 | Definir si se incluye a quienes ya terminaron una carrera. | Se excluyen (`NIVEL_ED = 6`, 502 observaciones): no asistir no significa que no hayan accedido. | Notebook, sección 4 |
+| 4 | `CH12` puede indicar un nivel cursado en el pasado; `CH10` y `CH12` solo deben construir la respuesta; revisar indicadores educativos derivados. | `CH12` se interpreta junto con `CH10 = 1`. `CH10`, `CH12`, `NIVEL_ED`, `CH11`, `CH13`, `CH14` y `CAT_INAC` no están en el dataset procesado. Además se detectaron y excluyeron las becas de estudio y la cuota alimentaria del joven. | Notebook, secciones 5 y 7; [diccionario](../references/diccionario_variables.md) |
+| 5 | Indicar año y trimestre. | 2.º, 3.º y 4.º trimestre de 2025 y 1.er trimestre de 2026 (los cuatro más recientes publicados), descargados el 22/10/2026. | [README](../README.md); Notebook, sección 1 |
+| 6 | Ajustar "jóvenes argentinos" a la población cubierta por los datos. | Se reemplazó por "jóvenes de 18 a 24 años residentes en los 31 aglomerados urbanos relevados por la EPH". | descripcion_y_objetivos.md; README |
+| 7 | Explicar cómo se vincula cada joven con su hogar y con el jefe o jefa. | Clave `CODUSU` + `NRO_HOGAR` + `ANO4` + `TRIMESTRE`; jefe/a = persona del hogar con `CH03 = 1`. Coincidencia del 100 %. Si el joven es jefe/a o cónyuge, los datos del jefe/a quedan vacíos (`es_jefe_o_conyuge = 1`). | Notebook, secciones 3 y 6 |
+| 8 | Coeficientes de la regresión logística = cambios en log-odds; importancia ≠ causalidad. | Se corrigió la justificación de los modelos. | descripcion_y_objetivos.md, sección 4 |
