@@ -7,7 +7,8 @@
 Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 años con secundario completo **asiste actualmente** a un estudio superior (terciario o universitario), a partir de sus características personales y las de su hogar, usando los microdatos de la Encuesta Permanente de Hogares (EPH) del INDEC.
 
 - **Autora:** Liliana Elizabeth Iñigo
-- **Materia:** Aprendizaje Automático · **Docente:** Nicolás Caballero
+- **Materia:** Aprendizaje Automático ·
+- **Docente:** Nicolás Caballero
 - **Tipo de problema:** clasificación binaria supervisada
 - **Descripción completa del proyecto y objetivos:** [docs/descripcion_y_objetivos.md](docs/descripcion_y_objetivos.md)
 
