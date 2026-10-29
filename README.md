@@ -7,14 +7,65 @@
 Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 años con secundario completo **asiste actualmente** a un estudio superior (terciario o universitario), a partir de sus características personales y las de su hogar, usando los microdatos de la Encuesta Permanente de Hogares (EPH) del INDEC.
 
 - **Autora:** Liliana Elizabeth Iñigo
-- **Materia:** Aprendizaje Automático ·
+- **Materia:** Aprendizaje Automático
 - **Docente:** Nicolás Caballero
 - **Tipo de problema:** clasificación binaria supervisada
-- **Descripción completa del proyecto y objetivos:** [docs/descripcion_y_objetivos.md](docs/descripcion_y_objetivos.md)
+
+## Contenido
+
+1. [Descripción del proyecto y objetivos](#1-descripción-del-proyecto-y-objetivos)
+2. [Planteo de la predicción](#2-planteo-de-la-predicción)
+3. [Origen de los datos](#3-origen-de-los-datos)
+4. [Preprocesamiento](#4-preprocesamiento)
+5. [Descripción del dataset](#5-descripción-del-dataset)
+6. [Cómo reproducir](#6-cómo-reproducir)
+7. [Organización del proyecto](#7-organización-del-proyecto)
 
 ---
 
-## Planteo de la predicción
+## 1. Descripción del proyecto y objetivos
+
+> Contenido de la primera entrega, actualizado con la devolución del docente. El detalle de cada ajuste está en [docs/ajustes_devolucion_entrega1.md](docs/ajustes_devolucion_entrega1.md).
+
+### Contexto y relevancia del problema
+
+La transición entre la escuela secundaria y los estudios superiores (terciarios o universitarios) es una etapa decisiva en la trayectoria de los jóvenes. Aunque finalizar la secundaria es un logro fundamental, la asistencia a estudios superiores suele estar muy vinculada con las condiciones socioeconómicas del hogar: los ingresos de la familia, el nivel educativo de quien está a cargo del hogar y la región del país donde viven.
+
+El aprendizaje automático permite analizar en conjunto estos factores y estimar, a partir de las características de un joven y de su hogar, si **asiste actualmente** al nivel superior. El modelo describe la situación en el momento de la encuesta: no predice una decisión futura. Identificar qué perfiles tienen menor asistencia resulta valioso para pensar intervenciones educativas y focalizar acompañamientos, tutorías o becas de estudio.
+
+A diferencia de proyectos anteriores del repositorio del Politécnico enfocados en la deserción escolar en el secundario o en la inserción laboral, este trabajo hace foco en una subpoblación puntual: quienes ya completaron el nivel medio y todavía no terminaron un estudio superior.
+
+La EPH releva **31 aglomerados urbanos**, por lo que los resultados corresponden a los jóvenes que viven en esos aglomerados y no a toda la población joven del país.
+
+### Objetivo general
+
+Desarrollar un modelo de clasificación supervisada que permita predecir la asistencia al nivel superior en jóvenes de 18 a 24 años con secundario completo, residentes en los aglomerados urbanos relevados por la EPH, a partir de variables individuales y del hogar.
+
+### Objetivos específicos
+
+1. **Delimitar la población de estudio:** filtrar y acondicionar la base de microdatos de la EPH para trabajar con jóvenes de 18 a 24 años que declararon tener el secundario completo.
+2. **Preparar las variables del estudio:** construir indicadores de contexto individual y del hogar a partir de los registros de la encuesta (por ejemplo, nivel educativo del jefe o jefa de hogar, tramos de ingresos familiares o región geográfica).
+3. **Entrenar y ajustar modelos supervisados:** entrenar algoritmos de clasificación vistos durante la cursada y ajustar sus hiperparámetros, mediante técnicas de partición y validación de datos.
+4. **Evaluar e interpretar los resultados:** comparar el rendimiento de los modelos entrenados e identificar cuáles son las características que tienen mayor peso en la predicción.
+
+### Tipo de problema
+
+**Clasificación binaria supervisada.** La variable objetivo `asiste_superior` toma dos valores: 1 (asiste actualmente al nivel superior) y 0 (no asiste actualmente). Su construcción se explica en la [sección 2](#2-planteo-de-la-predicción).
+
+### Modelos candidatos
+
+Se evaluarán modelos vistos en la cursada:
+
+1. **Regresión logística (modelo base):** punto de partida claro y de referencia. Sus coeficientes indican el cambio en el **logaritmo de las odds** de asistir por cada cambio en una variable; la relación con la probabilidad no es directa ni constante.
+2. **K vecinos más cercanos (KNN):** clasifica a cada joven según la similitud con otros perfiles cercanos, sin suponer una relación lineal.
+3. **Máquinas de vectores de soporte (SVM):** buscan límites de separación entre las clases; requieren variables escaladas y codificadas.
+4. **Árboles de decisión / Random Forest:** capturan reglas simples e interacciones entre condiciones del hogar (por ejemplo, ingresos y clima educativo familiar) y aportan una medida de importancia de variables.
+
+La importancia predictiva de una variable muestra cuánto ayuda al modelo a clasificar, pero **no demuestra que esa característica cause** la asistencia o la falta de asistencia.
+
+---
+
+## 2. Planteo de la predicción
 
 ### Variable objetivo: `asiste_superior`
 
@@ -23,7 +74,7 @@ Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 a�
 | `1` | El joven **asiste actualmente** a un estudio superior (terciario, universitario o posgrado) |
 | `0` | El joven **no asiste actualmente** al nivel superior |
 
-Se construye con dos preguntas de la EPH: `CH10 = 1` (asiste a un establecimiento educativo) y `CH12` = 6, 7 u 8 (el nivel que cursa es terciario, universitario o posgrado).
+Se construye con dos preguntas de la EPH: `CH10 = 1` (asiste a un establecimiento educativo) y `CH12` = 6, 7 u 8 (el nivel que cursa es terciario, universitario o posgrado). Como `CH12` también registra niveles cursados en el pasado, se interpreta siempre junto con `CH10`. Estas dos variables se usan **solo** para construir la respuesta.
 
 ### Qué representa cada fila
 
@@ -35,20 +86,18 @@ La predicción se hace **en el momento de la encuesta**, con datos del joven y d
 
 - **Disponibles (predictoras):** edad, sexo, parentesco con el jefe/a, estado civil, cobertura de salud, lugar de nacimiento, composición y vivienda del hogar, ingreso del resto del hogar, educación y situación laboral del jefe/a, región y aglomerado.
 - **No disponibles (excluidas por fuga de información):** todo lo que ya contiene la respuesta o es consecuencia de estudiar: nivel educativo del propio joven (`NIVEL_ED`), las preguntas educativas (`CH10` a `CH14`), la categoría de inactividad "estudiante" (`CAT_INAC`), las becas de estudio y la cuota alimentaria.
-- **Zona gris:** la condición de actividad del joven (ocupado, desocupado, inactivo) se registra al mismo tiempo que la asistencia y puede ser en parte consecuencia de estudiar. Se probarán los modelos con y sin esta variable.
+- **Zona gris:** la condición de actividad del joven (ocupado, desocupado, inactivo) se registra al mismo tiempo que la asistencia y puede ser en parte consecuencia de estudiar. Queda señalada para revisarla con cuidado.
 
-### Los dos tiempos del modelo
+### Los dos tiempos
 
 | Momento | Qué se hace | Con qué datos |
 |---|---|---|
-| **1. Uso de la predicción** | Estimar si un joven asiste al nivel superior a partir de sus características y las de su hogar. Por ejemplo, para identificar perfiles con menor asistencia y orientar acompañamientos o becas. | Las variables disponibles del joven y su hogar, sin información educativa propia. |
-| **2. Evaluación y reentrenamiento** | Comparar las predicciones con la realidad y corregir o reentrenar el modelo. | El INDEC publica una nueva base de la EPH cada trimestre con la respuesta real (`CH10`, `CH12`). Con cada publicación se puede medir si el modelo sigue acertando y reentrenarlo con los datos nuevos. |
-
-Para simular este segundo momento en la Entrega 3, se puede **entrenar con los trimestres de 2025 y evaluar con el 1T 2026**: el modelo se prueba con datos "del futuro" respecto de lo que aprendió. Como cada persona aparece una sola vez, ningún joven queda a la vez en entrenamiento y en prueba.
+| **1. Uso de la predicción** | Estimar si un joven asiste al nivel superior a partir de sus características y las de su hogar; por ejemplo, para identificar perfiles con menor asistencia y orientar acompañamientos o becas. | Las variables disponibles del joven y su hogar, sin información educativa propia. |
+| **2. Evaluación con la realidad y corrección** | Comparar lo estimado con lo que efectivamente ocurrió y corregir o reentrenar. | El INDEC publica una nueva base de la EPH cada trimestre, con la respuesta real (`CH10`, `CH12`) de los jóvenes encuestados. |
 
 ---
 
-## Origen de los datos
+## 3. Origen de los datos
 
 | | |
 |---|---|
@@ -78,22 +127,22 @@ En total: **178.474 registros de personas** y **63.010 de hogares**. La base de 
 
 ---
 
-## Preprocesamiento
+## 4. Preprocesamiento
 
 Todo el proceso está documentado paso a paso en la notebook [`notebooks/1.0-lei-descripcion-dataset-eph.ipynb`](notebooks/1.0-lei-descripcion-dataset-eph.ipynb) y se puede reproducir con el script [`asistencia_superior/dataset.py`](asistencia_superior/dataset.py).
 
 1. **Unión de los cuatro trimestres** de cada base.
 2. **Vinculación persona – hogar** con `CODUSU` + `NRO_HOGAR` + `ANO4` + `TRIMESTRE` (100 % de coincidencia).
 3. **Vinculación con el jefe o jefa de hogar:** persona del mismo hogar con `CH03 = 1` (100 % de los hogares tiene uno). Si el joven es jefe/a o cónyuge, los datos del jefe/a quedan vacíos y se marca `es_jefe_o_conyuge = 1`.
-4. **Población de estudio:** edad (`CH06`) entre 18 y 24 años y `NIVEL_ED` = 4 (secundario completo) o 5 (superior incompleto). Se incluye el 5 porque quien cursa el superior figura con ese código. Se excluye el 6 (superior completo, 502 observaciones). Resultado: **13.883 observaciones**.
-5. **Variable objetivo `asiste_superior`:** 1 si `CH10 = 1` (asiste) y `CH12` = 6, 7 u 8 (terciario, universitario o posgrado); 0 en otro caso. Mide la asistencia **en el momento de la encuesta**.
+4. **Población de estudio:** edad (`CH06`) entre 18 y 24 años y `NIVEL_ED` = 4 (secundario completo) o 5 (superior incompleto). Se incluye el 5 porque quien cursa el superior figura con ese código. Se excluye el 6 (superior completo, 502 observaciones): esos jóvenes ya terminaron una carrera. Resultado: **13.883 observaciones**.
+5. **Variable objetivo `asiste_superior`:** 1 si `CH10 = 1` y `CH12` = 6, 7 u 8; 0 en otro caso.
 6. **Ingresos:** cuando el hogar no responde ingresos, la EPH registra `ITF = 0` y `DECCFR = 12`; se marcan con `ingresos_sin_respuesta = 1` y el ingreso queda vacío. Se calcula el **ingreso per cápita del resto del hogar**, sin los ingresos propios del joven (que incluyen becas de estudio).
 7. **Panel:** la misma persona puede aparecer en dos trimestres. Se conserva **una fila por persona** (la observación más reciente): **9.665 personas**.
 8. **Exclusión de variables con fuga de información:** `CH10`, `CH12`, `NIVEL_ED`, `CH11`, `CH13`, `CH14`, `CAT_INAC`, montos de beca de estudio (`V11_01_M`, `V11_02_M`) y cuota alimentaria (`V12_M`). La revisión con datos está en la sección 7 de la notebook.
 
 ---
 
-## Descripción del dataset
+## 5. Descripción del dataset
 
 Archivo principal: [`data/processed/eph_jovenes_asistencia_superior.csv`](data/processed/eph_jovenes_asistencia_superior.csv)
 
@@ -124,15 +173,9 @@ Códigos y significado de cada variable: [`references/diccionario_variables.md`]
 
 Archivo intermedio: [`data/interim/eph_jovenes_18a24_todas_las_observaciones.csv`](data/interim/eph_jovenes_18a24_todas_las_observaciones.csv) — las 13.883 observaciones antes de quitar repetidos del panel, con las variables usadas para construir la respuesta (`CH10`, `CH12`, `NIVEL_ED`) para poder verificarla.
 
-### Observaciones para las próximas etapas
-
-- `condicion_actividad` no es un indicador educativo, pero se mide al mismo tiempo que la asistencia (muchos jóvenes son inactivos *porque* estudian). Se compararán los modelos con y sin esta variable.
-- Los faltantes de ingreso se imputarán dentro del pipeline de preparación (clase 3), sin usar información del conjunto de prueba.
-- El análisis no usa el ponderador para entrenar; se usará solo si se calculan porcentajes poblacionales en el análisis exploratorio.
-
 ---
 
-## Cómo reproducir
+## 6. Cómo reproducir
 
 ```bash
 # 1. Crear el entorno (Anaconda)
@@ -150,23 +193,23 @@ También se puede abrir y ejecutar la notebook de `notebooks/` con Jupyter.
 
 ---
 
-## Organización del proyecto
+## 7. Organización del proyecto
 
-Estructura generada con la plantilla [Cookiecutter Data Science](https://github.com/drivendataorg/cookiecutter-data-science) (versión 2).
+Estructura generada con la plantilla [Cookiecutter Data Science](https://github.com/drivendataorg/cookiecutter-data-science) (versión 2). Las carpetas y archivos marcados como *plantilla* vienen de Cookiecutter y todavía no se usan.
 
 ```
 ├── LICENSE            <- Licencia MIT
 ├── Makefile           <- Comandos útiles (`make data`, `make requirements`)
 ├── README.md          <- Este documento
 ├── data
-│   ├── external       <- Datos de terceros (sin uso por ahora)
+│   ├── external       <- Datos de terceros (plantilla, sin uso)
 │   ├── interim        <- Población de estudio con todas las observaciones del panel
-│   ├── processed      <- Dataset final para modelar (una fila por persona)
+│   ├── processed      <- Dataset final (una fila por persona)
 │   └── raw            <- Bases originales de la EPH, sin modificar
 │
 ├── docs               <- Descripción del proyecto, objetivos y ajustes por devoluciones
 │
-├── models             <- Modelos entrenados (Entrega 3)
+├── models             <- (plantilla, sin uso)
 │
 ├── notebooks          <- Notebooks numeradas: número, iniciales de la autora y descripción
 │                         (ej. `1.0-lei-descripcion-dataset-eph`)
@@ -184,17 +227,7 @@ Estructura generada con la plantilla [Cookiecutter Data Science](https://github.
     ├── __init__.py
     ├── config.py               <- Rutas del proyecto
     ├── dataset.py              <- Construcción del dataset a partir de data/raw
-    ├── features.py             <- Preparación de variables (Entrega 3)
-    ├── modeling
-    │   ├── predict.py          <- Predicción con modelos entrenados (Entrega 3)
-    │   └── train.py            <- Entrenamiento de modelos (Entrega 3)
-    └── plots.py                <- Gráficos (Entrega 3)
+    ├── features.py             <- (plantilla, sin uso)
+    ├── modeling                <- (plantilla, sin uso)
+    └── plots.py                <- (plantilla, sin uso)
 ```
-
-## Estado de las entregas
-
-| Entrega | Contenido | Estado |
-|---|---|---|
-| 1 | Descripción y formulación del objetivo | Entregada en el campus (PDF). Versión con ajustes en [docs/](docs/descripcion_y_objetivos.md) |
-| 2 | Descripción del dataset y origen | Este repositorio |
-| 3 | Modelo, análisis de resultados y video | Pendiente |
