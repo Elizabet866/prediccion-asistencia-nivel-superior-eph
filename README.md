@@ -15,11 +15,10 @@ Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 a�
 
 1. [Descripción del proyecto y objetivos](#1-descripción-del-proyecto-y-objetivos)
 2. [Planteo de la predicción](#2-planteo-de-la-predicción)
-3. [Origen de los datos](#3-origen-de-los-datos)
-4. [Preprocesamiento](#4-preprocesamiento)
-5. [Descripción del dataset](#5-descripción-del-dataset)
-6. [Cómo reproducir](#6-cómo-reproducir)
-7. [Organización del proyecto](#7-organización-del-proyecto)
+3. [Datos](#3-datos)
+4. [Dónde encontrar cada parte del trabajo](#4-dónde-encontrar-cada-parte-del-trabajo)
+5. [Cómo reproducir](#5-cómo-reproducir)
+6. [Organización del proyecto](#6-organización-del-proyecto)
 
 ---
 
@@ -74,7 +73,7 @@ La importancia predictiva de una variable muestra cuánto ayuda al modelo a clas
 | `1` | El joven **asiste actualmente** a un estudio superior (terciario, universitario o posgrado) |
 | `0` | El joven **no asiste actualmente** al nivel superior |
 
-Se construye con dos preguntas de la EPH: `CH10 = 1` (asiste a un establecimiento educativo) y `CH12` = 6, 7 u 8 (el nivel que cursa es terciario, universitario o posgrado). Como `CH12` también registra niveles cursados en el pasado, se interpreta siempre junto con `CH10`. Estas dos variables se usan **solo** para construir la respuesta.
+Se construye con dos preguntas de la EPH: `CH10 = 1` (asiste a un establecimiento educativo) y `CH12` = 6, 7 u 8 (el nivel que cursa es terciario, universitario o posgrado). Como `CH12` también registra niveles cursados en el pasado, se interpreta siempre junto con `CH10`. Estas dos variables se usan **solo** para construir la respuesta. El detalle está en el [informe técnico](docs/informe_dataset.md#33-variable-objetivo).
 
 ### Qué representa cada fila
 
@@ -97,85 +96,31 @@ La predicción se hace **en el momento de la encuesta**, con datos del joven y d
 
 ---
 
-## 3. Origen de los datos
+## 3. Datos
 
-| | |
+- **Fuente:** Encuesta Permanente de Hogares (EPH) continua del INDEC — 2.º, 3.º y 4.º trimestre de 2025 y 1.er trimestre de 2026, descargados el 22/10/2026 de https://www.indec.gob.ar/indec/web/Institucional-Indec-BasesDeDatos
+- **Archivos originales:** 8 bases (4 de personas y 4 de hogares) en [`data/raw/`](data/raw/), sin modificar.
+- **Dataset del proyecto:** [`data/processed/eph_jovenes_asistencia_superior.csv`](data/processed/eph_jovenes_asistencia_superior.csv) — **9.665 jóvenes** (una fila por persona) y **26 columnas**. Clases equilibradas: 54,8 % asiste y 45,2 % no asiste.
+
+La descripción completa del dataset (origen, construcción, variables, tipos de datos, diccionario y decisiones) está en el **informe técnico [`docs/informe_dataset.md`](docs/informe_dataset.md)**.
+
+---
+
+## 4. Dónde encontrar cada parte del trabajo
+
+| Qué | Dónde |
 |---|---|
-| **Fuente** | Encuesta Permanente de Hogares (EPH), modalidad continua – Instituto Nacional de Estadística y Censos (INDEC) |
-| **Descarga** | https://www.indec.gob.ar/indec/web/Institucional-Indec-BasesDeDatos |
-| **Trimestres** | 2.º, 3.º y 4.º trimestre de 2025 y 1.er trimestre de 2026 (los cuatro más recientes publicados) |
-| **Fecha de descarga** | 22 de octubre de 2026 |
-| **Cómo se recopilan** | Encuesta por muestreo a hogares, realizada por el INDEC en forma continua. Cada hogar se entrevista en varios trimestres (panel rotativo) |
-| **Cobertura** | 31 aglomerados urbanos del país (32 códigos, porque el Gran Buenos Aires se divide en CABA y partidos del conurbano). No incluye población rural |
-| **Formato original** | Texto separado por `;`, una base de personas y una de hogares por trimestre |
-| **Uso** | Datos públicos; se cita la fuente |
-
-### Archivos originales (`data/raw/`)
-
-| Archivo | Contenido | Filas | Columnas |
-|---|---|---:|---:|
-| `usu_individual_T225.txt` | Personas, 2T 2025 | 46.086 | 235 |
-| `usu_individual_T325.txt` | Personas, 3T 2025 | 44.946 | 235 |
-| `usu_individual_T425.txt` | Personas, 4T 2025 | 43.703 | 235 |
-| `usu_individual_T126.txt` | Personas, 1T 2026 | 43.739 | 234 |
-| `usu_hogar_T225.txt` | Hogares, 2T 2025 | 16.169 | 98 |
-| `usu_hogar_T325.txt` | Hogares, 3T 2025 | 15.860 | 98 |
-| `usu_hogar_T425.txt` | Hogares, 4T 2025 | 15.534 | 98 |
-| `usu_hogar_T126.txt` | Hogares, 1T 2026 | 15.447 | 98 |
-
-En total: **178.474 registros de personas** y **63.010 de hogares**. La base de personas del 1T 2026 no trae la columna `CAT_INAC` (cambio en el diseño de registro del INDEC); no afecta al proyecto porque esa variable se excluye.
+| Informe técnico del dataset: origen, cantidad de registros, variables, tipos y diccionario de datos | [`docs/informe_dataset.md`](docs/informe_dataset.md) |
+| Carga de las bases originales y construcción del dataset | [`notebooks/1.0-lei-carga-y-construccion-dataset.ipynb`](notebooks/1.0-lei-carga-y-construccion-dataset.ipynb) |
+| Análisis exploratorio de datos (EDA) | [`notebooks/2.0-lei-analisis-exploratorio.ipynb`](notebooks/2.0-lei-analisis-exploratorio.ipynb) |
+| Preprocesamiento: recodificación, partición, imputación, codificación y escalado | [`notebooks/3.0-lei-preprocesamiento.ipynb`](notebooks/3.0-lei-preprocesamiento.ipynb) |
+| Matrices preparadas (con y sin escalado) | [`data/processed/`](data/processed/) |
+| Gráficos generados | [`reports/figures/`](reports/figures/) |
+| Ajustes realizados a partir de la devolución de la primera entrega | [`docs/ajustes_devolucion_entrega1.md`](docs/ajustes_devolucion_entrega1.md) |
 
 ---
 
-## 4. Preprocesamiento
-
-Todo el proceso está documentado paso a paso en la notebook [`notebooks/1.0-lei-descripcion-dataset-eph.ipynb`](notebooks/1.0-lei-descripcion-dataset-eph.ipynb) y se puede reproducir con el script [`asistencia_superior/dataset.py`](asistencia_superior/dataset.py).
-
-1. **Unión de los cuatro trimestres** de cada base.
-2. **Vinculación persona – hogar** con `CODUSU` + `NRO_HOGAR` + `ANO4` + `TRIMESTRE` (100 % de coincidencia).
-3. **Vinculación con el jefe o jefa de hogar:** persona del mismo hogar con `CH03 = 1` (100 % de los hogares tiene uno). Si el joven es jefe/a o cónyuge, los datos del jefe/a quedan vacíos y se marca `es_jefe_o_conyuge = 1`.
-4. **Población de estudio:** edad (`CH06`) entre 18 y 24 años y `NIVEL_ED` = 4 (secundario completo) o 5 (superior incompleto). Se incluye el 5 porque quien cursa el superior figura con ese código. Se excluye el 6 (superior completo, 502 observaciones): esos jóvenes ya terminaron una carrera. Resultado: **13.883 observaciones**.
-5. **Variable objetivo `asiste_superior`:** 1 si `CH10 = 1` y `CH12` = 6, 7 u 8; 0 en otro caso.
-6. **Ingresos:** cuando el hogar no responde ingresos, la EPH registra `ITF = 0` y `DECCFR = 12`; se marcan con `ingresos_sin_respuesta = 1` y el ingreso queda vacío. Se calcula el **ingreso per cápita del resto del hogar**, sin los ingresos propios del joven (que incluyen becas de estudio).
-7. **Panel:** la misma persona puede aparecer en dos trimestres. Se conserva **una fila por persona** (la observación más reciente): **9.665 personas**.
-8. **Exclusión de variables con fuga de información:** `CH10`, `CH12`, `NIVEL_ED`, `CH11`, `CH13`, `CH14`, `CAT_INAC`, montos de beca de estudio (`V11_01_M`, `V11_02_M`) y cuota alimentaria (`V12_M`). La revisión con datos está en la sección 7 de la notebook.
-
----
-
-## 5. Descripción del dataset
-
-Archivo principal: [`data/processed/eph_jovenes_asistencia_superior.csv`](data/processed/eph_jovenes_asistencia_superior.csv)
-
-- **Instancias:** 9.665 personas (una fila por persona)
-- **Columnas:** 26 → 5 de identificación y diseño muestral, 1 variable objetivo y 20 predictoras candidatas
-- **Clases:** `asiste_superior = 1`: **5.299 (54,8 %)** · `asiste_superior = 0`: **4.366 (45,2 %)** → clases equilibradas
-
-<img src="reports/figures/balance_clases.png" width="420" alt="Balance de clases">
-
-| Columna | Tipo | Rol | Faltantes |
-|---|---|---|---:|
-| `codusu`, `nro_hogar`, `componente` | texto / entero | identificación de la persona | 0 |
-| `trimestre` | texto | trimestre de la observación | 0 |
-| `ponderador` | entero | factor de expansión (no predictora) | 0 |
-| `asiste_superior` | binaria | **variable objetivo** | 0 |
-| `sexo`, `parentesco_jefe`, `estado_civil`, `cobertura_salud`, `lugar_nacimiento`, `condicion_actividad` | categóricas (códigos) | predictoras del joven | 0 |
-| `edad` | numérica discreta | predictora del joven | 0 |
-| `es_jefe_o_conyuge` | binaria | predictora del joven | 0 |
-| `personas_hogar`, `menores_10_hogar` | numéricas discretas | predictoras del hogar | 0 |
-| `personas_por_ambiente` | numérica continua | predictora del hogar (hacinamiento) | 4 |
-| `tipo_vivienda`, `tenencia_vivienda` | categóricas (códigos) | predictoras del hogar | 0 |
-| `ingreso_resto_hogar_pc` | numérica continua (pesos) | predictora del hogar | 2.784 (hogares sin respuesta de ingresos) |
-| `ingresos_sin_respuesta` | binaria | predictora del hogar | 0 |
-| `jefe_nivel_educativo`, `jefe_sexo`, `jefe_condicion_actividad` | categóricas (códigos) | predictoras del jefe/a | 1.337 (jóvenes que son jefe/a o cónyuge) |
-| `region`, `aglomerado` | categóricas (códigos) | ubicación | 0 |
-
-Códigos y significado de cada variable: [`references/diccionario_variables.md`](references/diccionario_variables.md).
-
-Archivo intermedio: [`data/interim/eph_jovenes_18a24_todas_las_observaciones.csv`](data/interim/eph_jovenes_18a24_todas_las_observaciones.csv) — las 13.883 observaciones antes de quitar repetidos del panel, con las variables usadas para construir la respuesta (`CH10`, `CH12`, `NIVEL_ED`) para poder verificarla.
-
----
-
-## 6. Cómo reproducir
+## 5. Cómo reproducir
 
 ```bash
 # 1. Crear el entorno (Anaconda)
@@ -185,15 +130,15 @@ conda activate prediccion-asistencia-nivel-superior-eph
 # 2. Instalar dependencias (incluye este proyecto como paquete)
 pip install -r requirements.txt
 
-# 3. Generar data/interim y data/processed a partir de data/raw
+# 3. Generar data/interim y el dataset de data/processed a partir de data/raw
 python asistencia_superior/dataset.py
 ```
 
-También se puede abrir y ejecutar la notebook de `notebooks/` con Jupyter.
+Después se pueden ejecutar con Jupyter las notebooks de `notebooks/`, en orden (1.0, 2.0 y 3.0).
 
 ---
 
-## 7. Organización del proyecto
+## 6. Organización del proyecto
 
 Estructura generada con la plantilla [Cookiecutter Data Science](https://github.com/drivendataorg/cookiecutter-data-science) (versión 2). Las carpetas y archivos marcados como *plantilla* vienen de Cookiecutter y todavía no se usan.
 
@@ -204,19 +149,19 @@ Estructura generada con la plantilla [Cookiecutter Data Science](https://github.
 ├── data
 │   ├── external       <- Datos de terceros (plantilla, sin uso)
 │   ├── interim        <- Población de estudio con todas las observaciones del panel
-│   ├── processed      <- Dataset final (una fila por persona)
+│   ├── processed      <- Dataset final (una fila por persona) y matrices preparadas
 │   └── raw            <- Bases originales de la EPH, sin modificar
 │
-├── docs               <- Descripción del proyecto, objetivos y ajustes por devoluciones
+├── docs               <- Informe técnico del dataset, descripción del proyecto y ajustes por devoluciones
 │
 ├── models             <- (plantilla, sin uso)
 │
 ├── notebooks          <- Notebooks numeradas: número, iniciales de la autora y descripción
-│                         (ej. `1.0-lei-descripcion-dataset-eph`)
+│                         (1.0 carga y construcción, 2.0 análisis exploratorio, 3.0 preprocesamiento)
 │
 ├── pyproject.toml     <- Configuración del paquete `asistencia_superior` y de ruff
 │
-├── references         <- Diccionario de variables
+├── references         <- Material de referencia (diseño de registro de la EPH)
 │
 ├── reports
 │   └── figures        <- Gráficos generados
