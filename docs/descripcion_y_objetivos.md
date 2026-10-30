@@ -1,6 +1,11 @@
 # Descripción del proyecto y formulación de objetivos
 
-**Alumna:** Iñigo Liliana Elizabeth · **Materia:** Aprendizaje Automático · **Docente:** Nicolás Caballero
+**Alumna:** Iñigo Liliana Elizabeth
+
+**Materia:** Aprendizaje Automático
+
+**Docente:** Nicolás Caballero
+
 **Versión:** actualizada con la devolución de la primera entrega (los cambios se detallan en [ajustes_devolucion_entrega1.md](ajustes_devolucion_entrega1.md)).
 
 ## Título del proyecto

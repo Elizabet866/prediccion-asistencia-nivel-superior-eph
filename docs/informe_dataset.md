@@ -1,7 +1,12 @@
 # Informe técnico del dataset
 
 **Proyecto:** Predicción de la asistencia al nivel superior en jóvenes a partir de la EPH (INDEC)
-**Autora:** Liliana Elizabeth Iñigo · **Materia:** Aprendizaje Automático · **Docente:** Nicolás Caballero
+
+**Autora:** Liliana Elizabeth Iñigo
+
+**Materia:** Aprendizaje Automático
+
+**Docente:** Nicolás Caballero
 
 Este documento describe el dataset del proyecto: de dónde provienen los datos, cómo se construyó, cuántos registros tiene, qué variables contiene, de qué tipo son y qué representa cada una. También documenta las decisiones tomadas sobre registros, categorías y faltantes.
 
