@@ -1,15 +1,40 @@
-# Predicción de la asistencia al nivel superior en jóvenes (EPH – INDEC)
+<p align="center">
+  <img src="docs/img/logo-politecnico.png" width="130" alt="Logo del Centro Politécnico Superior Malvinas Argentinas">
+</p>
 
-<a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
-    <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
-</a>
+<h1 align="center">Predicción de la asistencia al nivel superior en jóvenes</h1>
+
+<p align="center">
+  <strong>Trabajo parcial · Aprendizaje Automático · 2026</strong><br>
+  Tecnicatura Superior en Ciencia de Datos e Inteligencia Artificial<br>
+  Centro Politécnico Superior Malvinas Argentinas
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/scikit--learn-preprocesamiento-F7931E?logo=scikitlearn&logoColor=white" alt="scikit-learn">
+  <img src="https://img.shields.io/badge/Datos-EPH%20INDEC%202025--2026-14304F" alt="Datos: EPH INDEC 2025-2026">
+  <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/"><img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" alt="Plantilla Cookiecutter Data Science"></a>
+</p>
+
+---
 
 Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 años con secundario completo **asiste actualmente** a un estudio superior (terciario o universitario), a partir de sus características personales y las de su hogar, usando los microdatos de la Encuesta Permanente de Hogares (EPH) del INDEC.
 
-- **Autora:** Liliana Elizabeth Iñigo
-- **Materia:** Aprendizaje Automático
-- **Docente:** Nicolás Caballero
-- **Tipo de problema:** clasificación binaria supervisada
+| | |
+|---|---|
+| **Autora** | Liliana Elizabeth Iñigo |
+| **Materia** | Aprendizaje Automático |
+| **Docente** | Nicolás Caballero |
+| **Tipo de problema** | Clasificación binaria supervisada |
+
+### Estado del proyecto
+
+| Entrega | Contenido | Estado |
+|---|---|---|
+| 1. Descripción y formulación del objetivo | Problema, contexto, objetivos, tipo de problema y modelos candidatos ([sección 1](#1-descripción-del-proyecto-y-objetivos)) | Entregada |
+| 2. Descripción del dataset y origen | [Informe técnico del dataset](docs/informe_dataset.md) y notebooks de carga, análisis exploratorio y preprocesamiento | Entregada |
+| 3. Presentación del modelo y análisis de resultados | — | Pendiente |
 
 ## Contenido
 
@@ -19,6 +44,7 @@ Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 a�
 4. [Dónde encontrar cada parte del trabajo](#4-dónde-encontrar-cada-parte-del-trabajo)
 5. [Cómo reproducir](#5-cómo-reproducir)
 6. [Organización del proyecto](#6-organización-del-proyecto)
+7. [Tecnologías utilizadas](#7-tecnologías-utilizadas)
 
 ---
 
@@ -152,7 +178,8 @@ Estructura generada con la plantilla [Cookiecutter Data Science](https://github.
 │   ├── processed      <- Dataset final (una fila por persona) y matrices preparadas
 │   └── raw            <- Bases originales de la EPH, sin modificar
 │
-├── docs               <- Informe técnico del dataset, descripción del proyecto y ajustes por devoluciones
+├── docs               <- Informe técnico del dataset, descripción del proyecto, ajustes por devoluciones
+│                         e imágenes del README (img/)
 │
 ├── models             <- (plantilla, sin uso)
 │
@@ -176,3 +203,17 @@ Estructura generada con la plantilla [Cookiecutter Data Science](https://github.
     ├── modeling                <- (plantilla, sin uso)
     └── plots.py                <- (plantilla, sin uso)
 ```
+
+---
+
+## 7. Tecnologías utilizadas
+
+`Python` · `pandas` · `NumPy` · `Matplotlib` · `scikit-learn` · `Jupyter Notebook` · `Cookiecutter Data Science` · `Git / GitHub`
+
+---
+
+<p align="center">
+  <strong>Liliana Elizabeth Iñigo</strong><br>
+  Tecnicatura Superior en Ciencia de Datos e Inteligencia Artificial<br>
+  Centro Politécnico Superior Malvinas Argentinas · 2026
+</p>
