@@ -5,7 +5,7 @@
 <h1 align="center">Predicción de la asistencia al nivel superior en jóvenes</h1>
 
 <p align="center">
-  <strong>Trabajo parcial · Aprendizaje Automático · 2026</strong><br>
+  <strong>Proyecto para el parcial de Aprendizaje Automático · 2026</strong><br>
   Tecnicatura Superior en Ciencia de Datos e Inteligencia Artificial<br>
   Centro Politécnico Superior Malvinas Argentinas
 </p>
