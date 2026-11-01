@@ -148,8 +148,24 @@ La descripción completa del dataset (origen, construcción, variables, tipos de
 
 ## 5. Cómo reproducir
 
+### Opción A: Google Colab (la utilizada en este proyecto)
+
+Colab ya trae instaladas las librerías que usan las notebooks (pandas, NumPy, Matplotlib y scikit-learn). Solo hace falta descargar el repositorio para tener los datos:
+
+1. Abrir una notebook en Colab: **Archivo → Abrir notebook → GitHub** y pegar la dirección de este repositorio.
+2. Agregar una celda al principio y ejecutarla:
+
+```python
+!git clone https://github.com/Elizabet866/prediccion-asistencia-nivel-superior-eph
+%cd prediccion-asistencia-nivel-superior-eph/notebooks
+```
+
+3. Ejecutar las notebooks en orden: 1.0, 2.0 y 3.0.
+
+### Opción B: en una computadora local (Anaconda)
+
 ```bash
-# 1. Crear el entorno (Anaconda)
+# 1. Crear el entorno
 conda create --name prediccion-asistencia-nivel-superior-eph python=3.12 -y
 conda activate prediccion-asistencia-nivel-superior-eph
 
