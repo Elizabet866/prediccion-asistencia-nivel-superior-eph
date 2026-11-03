@@ -33,7 +33,7 @@ Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 a�
 | Entrega | Contenido | Estado |
 |---|---|---|
 | 1. Descripción y formulación del objetivo | Problema, contexto, objetivos, tipo de problema y modelos candidatos ([sección 1](#1-descripción-del-proyecto-y-objetivos)) | Entregada |
-| 2. Descripción del dataset y origen | [Informe técnico del dataset](docs/informe_dataset.md) y notebooks de carga, análisis exploratorio y preprocesamiento | Entregada |
+| 2. Descripción del dataset y origen | [Informe técnico del dataset](docs/informe_dataset.md) y notebooks de carga, análisis exploratorio y preprocesamiento | Entregada · [ajustada con la devolución](docs/ajustes_devolucion_entrega2.md) |
 | 3. Presentación del modelo y análisis de resultados | — | Pendiente |
 
 ## Contenido
@@ -99,17 +99,17 @@ La importancia predictiva de una variable muestra cuánto ayuda al modelo a clas
 | `1` | El joven **asiste actualmente** a un estudio superior (terciario, universitario o posgrado) |
 | `0` | El joven **no asiste actualmente** al nivel superior |
 
-Se construye con dos preguntas de la EPH: `CH10 = 1` (asiste a un establecimiento educativo) y `CH12` = 6, 7 u 8 (el nivel que cursa es terciario, universitario o posgrado). Como `CH12` también registra niveles cursados en el pasado, se interpreta siempre junto con `CH10`. Estas dos variables se usan **solo** para construir la respuesta. El detalle está en el [informe técnico](docs/informe_dataset.md#33-variable-objetivo).
+Se construye con dos preguntas de la EPH: `CH10 = 1` (asiste a un establecimiento educativo) y `CH12` = 6, 7 u 8 (el nivel que cursa es terciario, universitario o posgrado). Como `CH12` también registra niveles cursados en el pasado, se interpreta siempre junto con `CH10`. Estas dos variables se usan **solo** para construir la respuesta. Las 3 observaciones en las que la asistencia no puede determinarse no se cuentan como clase 0: se excluyen. El detalle está en el [informe técnico](docs/informe_dataset.md#33-variable-objetivo-y-respuestas-desconocidas).
 
 ### Qué representa cada fila
 
-**Cada fila es un joven** de 18 a 24 años con secundario completo y sin un estudio superior terminado, que vive en uno de los aglomerados urbanos relevados por la EPH. Los datos describen su situación y la de su hogar **en el trimestre en que fue encuestado**. Si el joven fue encuestado en dos trimestres, queda solo la observación más reciente, para que cada persona aparezca una sola vez.
+**Cada fila es un joven** de 18 a 24 años con secundario completo y sin un estudio superior terminado, que vive en uno de los aglomerados urbanos relevados por la EPH. Los datos describen su situación y la de su hogar **en el trimestre en que fue encuestado**. Si el joven fue encuestado en dos trimestres, queda solo la observación más reciente con respuesta conocida, para que cada persona aparezca una sola vez.
 
 ### Cuándo se hace la predicción y con qué información
 
 La predicción se hace **en el momento de la encuesta**, con datos del joven y de su hogar que **pueden conocerse sin saber si asiste o no**:
 
-- **Disponibles (predictoras):** edad, sexo, parentesco con el jefe/a, estado civil, cobertura de salud, lugar de nacimiento, composición y vivienda del hogar, ingreso del resto del hogar, educación y situación laboral del jefe/a, región y aglomerado.
+- **Disponibles (predictoras):** edad, sexo, parentesco con el jefe/a, estado civil, cobertura de salud, lugar de nacimiento, composición y vivienda del hogar, situación e ingreso relativo del resto del hogar (percentil dentro de su trimestre, comparable entre 2025 y 2026), educación y situación laboral del jefe/a y región.
 - **No disponibles (excluidas por fuga de información):** todo lo que ya contiene la respuesta o es consecuencia de estudiar: nivel educativo del propio joven (`NIVEL_ED`), las preguntas educativas (`CH10` a `CH14`), la categoría de inactividad "estudiante" (`CAT_INAC`), las becas de estudio y la cuota alimentaria.
 - **Zona gris:** la condición de actividad del joven (ocupado, desocupado, inactivo) se registra al mismo tiempo que la asistencia y puede ser en parte consecuencia de estudiar. Queda señalada para revisarla con cuidado.
 
@@ -126,7 +126,9 @@ La predicción se hace **en el momento de la encuesta**, con datos del joven y d
 
 - **Fuente:** Encuesta Permanente de Hogares (EPH) continua del INDEC — 2.º, 3.º y 4.º trimestre de 2025 y 1.er trimestre de 2026, descargados el 22/10/2026 de https://www.indec.gob.ar/indec/web/Institucional-Indec-BasesDeDatos
 - **Archivos originales:** 8 bases (4 de personas y 4 de hogares) en [`data/raw/`](data/raw/), sin modificar.
-- **Dataset del proyecto:** [`data/processed/eph_jovenes_asistencia_superior.csv`](data/processed/eph_jovenes_asistencia_superior.csv) — **9.665 jóvenes** (una fila por persona) y **26 columnas**. Clases equilibradas: 54,8 % asiste y 45,2 % no asiste.
+- **Dataset del proyecto:** [`data/processed/eph_jovenes_asistencia_superior.csv`](data/processed/eph_jovenes_asistencia_superior.csv) — **9.663 jóvenes** (una fila por persona) y **28 columnas**. Clases equilibradas: 54,8 % asiste y 45,2 % no asiste.
+- **Partición temporal:** entrenamiento con 2025 (6.059 jóvenes, 55,9 % asiste) y prueba con el 1T 2026 (3.497 jóvenes, 53,5 % asiste). Se excluyen del entrenamiento 107 jóvenes que viven en viviendas que también tienen jóvenes en la prueba.
+- **Alcance:** los análisis se hacen sin ponderar y describen la muestra analizada; no se presentan como estimaciones para toda la población.
 
 La descripción completa del dataset (origen, construcción, variables, tipos de datos, diccionario y decisiones) está en el **informe técnico [`docs/informe_dataset.md`](docs/informe_dataset.md)**.
 
@@ -138,11 +140,12 @@ La descripción completa del dataset (origen, construcción, variables, tipos de
 |---|---|
 | Informe técnico del dataset: origen, cantidad de registros, variables, tipos y diccionario de datos | [`docs/informe_dataset.md`](docs/informe_dataset.md) |
 | Carga de las bases originales y construcción del dataset | [`notebooks/1.0-lei-carga-y-construccion-dataset.ipynb`](notebooks/1.0-lei-carga-y-construccion-dataset.ipynb) |
-| Análisis exploratorio de datos (EDA) | [`notebooks/2.0-lei-analisis-exploratorio.ipynb`](notebooks/2.0-lei-analisis-exploratorio.ipynb) |
-| Preprocesamiento: recodificación, partición, imputación, codificación y escalado | [`notebooks/3.0-lei-preprocesamiento.ipynb`](notebooks/3.0-lei-preprocesamiento.ipynb) |
+| Análisis exploratorio de datos (EDA), solo con el conjunto de entrenamiento | [`notebooks/2.0-lei-analisis-exploratorio.ipynb`](notebooks/2.0-lei-analisis-exploratorio.ipynb) |
+| Preprocesamiento: recodificación, agrupación de categorías, imputación, codificación y escalado | [`notebooks/3.0-lei-preprocesamiento.ipynb`](notebooks/3.0-lei-preprocesamiento.ipynb) |
 | Matrices preparadas (con y sin escalado) | [`data/processed/`](data/processed/) |
 | Gráficos generados | [`reports/figures/`](reports/figures/) |
 | Ajustes realizados a partir de la devolución de la primera entrega | [`docs/ajustes_devolucion_entrega1.md`](docs/ajustes_devolucion_entrega1.md) |
+| Ajustes realizados a partir de la devolución de la segunda entrega | [`docs/ajustes_devolucion_entrega2.md`](docs/ajustes_devolucion_entrega2.md) |
 
 ---
 
