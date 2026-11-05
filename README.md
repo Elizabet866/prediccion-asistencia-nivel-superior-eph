@@ -12,7 +12,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
-  <img src="https://img.shields.io/badge/scikit--learn-preprocesamiento-F7931E?logo=scikitlearn&logoColor=white" alt="scikit-learn">
+  <img src="https://img.shields.io/badge/scikit--learn-clasificación-F7931E?logo=scikitlearn&logoColor=white" alt="scikit-learn">
   <img src="https://img.shields.io/badge/Datos-EPH%20INDEC%202025--2026-14304F" alt="Datos: EPH INDEC 2025-2026">
   <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/"><img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" alt="Plantilla Cookiecutter Data Science"></a>
 </p>
@@ -27,6 +27,11 @@ Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 a�
 | **Materia** | Aprendizaje Automático |
 | **Docente** | Nicolás Caballero |
 | **Tipo de problema** | Clasificación binaria supervisada |
+| **Video de presentación** | *(agregar el enlace al video)* |
+
+## Abstract
+
+*(Agregar aquí el abstract en inglés.)*
 
 ### Estado del proyecto
 
@@ -34,17 +39,20 @@ Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 a�
 |---|---|---|
 | 1. Descripción y formulación del objetivo | Problema, contexto, objetivos, tipo de problema y modelos candidatos ([sección 1](#1-descripción-del-proyecto-y-objetivos)) | Entregada |
 | 2. Descripción del dataset y origen | [Informe técnico del dataset](docs/informe_dataset.md) y notebooks de carga, análisis exploratorio y preprocesamiento | Entregada · [ajustada con la devolución](docs/ajustes_devolucion_entrega2.md) |
-| 3. Presentación del modelo y análisis de resultados | — | Pendiente |
+| 3. Presentación del modelo y análisis de resultados | Notebook de modelado y evaluación ([sección 4](#4-modelado-y-resultados)), resultados, limitaciones y video | Entregada |
 
 ## Contenido
 
 1. [Descripción del proyecto y objetivos](#1-descripción-del-proyecto-y-objetivos)
 2. [Planteo de la predicción](#2-planteo-de-la-predicción)
 3. [Datos](#3-datos)
-4. [Dónde encontrar cada parte del trabajo](#4-dónde-encontrar-cada-parte-del-trabajo)
-5. [Cómo reproducir](#5-cómo-reproducir)
-6. [Organización del proyecto](#6-organización-del-proyecto)
-7. [Tecnologías utilizadas](#7-tecnologías-utilizadas)
+4. [Modelado y resultados](#4-modelado-y-resultados)
+5. [Limitaciones y alcances](#5-limitaciones-y-alcances)
+6. [Conclusiones y trabajo futuro](#6-conclusiones-y-trabajo-futuro)
+7. [Dónde encontrar cada parte del trabajo](#7-dónde-encontrar-cada-parte-del-trabajo)
+8. [Cómo reproducir](#8-cómo-reproducir)
+9. [Organización del proyecto](#9-organización-del-proyecto)
+10. [Tecnologías utilizadas](#10-tecnologías-utilizadas)
 
 ---
 
@@ -79,7 +87,7 @@ Desarrollar un modelo de clasificación supervisada que permita predecir la asis
 
 ### Modelos candidatos
 
-Se evaluarán modelos vistos en la cursada:
+Se evaluaron modelos vistos en la cursada (los resultados están en la [sección 4](#4-modelado-y-resultados)):
 
 1. **Regresión logística (modelo base):** punto de partida claro y de referencia. Sus coeficientes indican el cambio en el **logaritmo de las odds** de asistir por cada cambio en una variable; la relación con la probabilidad no es directa ni constante.
 2. **K vecinos más cercanos (KNN):** clasifica a cada joven según la similitud con otros perfiles cercanos, sin suponer una relación lineal.
@@ -111,7 +119,8 @@ La predicción se hace **en el momento de la encuesta**, con datos del joven y d
 
 - **Disponibles (predictoras):** edad, sexo, parentesco con el jefe/a, estado civil, cobertura de salud, lugar de nacimiento, composición y vivienda del hogar, situación e ingreso relativo del resto del hogar (percentil dentro de su trimestre, comparable entre 2025 y 2026), educación y situación laboral del jefe/a y región.
 - **No disponibles (excluidas por fuga de información):** todo lo que ya contiene la respuesta o es consecuencia de estudiar: nivel educativo del propio joven (`NIVEL_ED`), las preguntas educativas (`CH10` a `CH14`), la categoría de inactividad "estudiante" (`CAT_INAC`), las becas de estudio y la cuota alimentaria.
-- **Zona gris:** la condición de actividad del joven (ocupado, desocupado, inactivo) se registra al mismo tiempo que la asistencia y puede ser en parte consecuencia de estudiar. Queda señalada para revisarla con cuidado.
+- **Zona gris:** la condición de actividad del joven (ocupado, desocupado, inactivo) se registra al mismo tiempo que la asistencia y puede ser en parte consecuencia de estudiar. Se conserva, y el modelo sin ella se informa como análisis de sensibilidad ([sección 4](#4-modelado-y-resultados)).
+- **Variables de entrada del modelo (18, que se convierten en 55 columnas con one-hot):** `edad`, `personas_hogar`, `menores_10_hogar`, `personas_por_ambiente`, `percentil_ingreso_resto`, `sexo_mujer`, `parentesco_jefe`, `estado_civil`, `cobertura_salud`, `lugar_nacimiento`, `condicion_actividad`, `tipo_vivienda`, `tenencia_vivienda`, `situacion_ingreso_resto`, `jefe_nivel_educativo`, `jefe_sexo`, `jefe_condicion_actividad` y `region`. Su significado está en el [diccionario de datos](docs/informe_dataset.md#5-diccionario-de-datos).
 
 ### Los dos tiempos
 
@@ -134,7 +143,76 @@ La descripción completa del dataset (origen, construcción, variables, tipos de
 
 ---
 
-## 4. Dónde encontrar cada parte del trabajo
+## 4. Modelado y resultados
+
+El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-modelado-y-evaluacion.ipynb`](notebooks/4.0-lei-modelado-y-evaluacion.ipynb).
+
+**Clase de interés: "no asiste" (0).** Son los jóvenes a quienes se dirigiría un acompañamiento o una beca. La métrica principal es el **F1 de "no asiste"**, que combina:
+- **recall:** de los jóvenes que no asisten, qué proporción detecta el modelo;
+- **precisión:** de los que el modelo marca como "no asiste", qué proporción realmente no asiste.
+
+**Método.**
+1. El conjunto de prueba (1T 2026) queda reservado.
+2. Con el entrenamiento (2025) se eligen los hiperparámetros de cada modelo por **validación cruzada de 5 pliegues, agrupada por vivienda**, para que jóvenes del mismo hogar no queden repartidos entre entrenamiento y validación.
+3. Se elige el modelo final y su **umbral de decisión**, también por validación.
+4. Recién entonces se evalúa **una sola vez** en la prueba.
+
+**Comparación en validación (clase "no asiste", promedio de 5 pliegues).**
+
+| Modelo | Hiperparámetros elegidos | F1 | Recall | Precisión | Exactitud |
+|---|---|---:|---:|---:|---:|
+| Referencia (predice siempre "asiste") | — | 0,000 | 0,000 | 0,000 | 0,559 |
+| Regresión logística | C = 10 | 0,733 | 0,718 | 0,748 | 0,769 |
+| KNN | K = 21, ponderado por distancia | 0,699 | 0,648 | 0,758 | 0,753 |
+| SVM (núcleo RBF) | C = 1, gamma = "scale" | 0,737 | 0,726 | 0,749 | 0,772 |
+| Árbol de decisión | profundidad 3, mínimo 60 por hoja | 0,728 | 0,792 | 0,675 | 0,739 |
+| Random Forest | 300 árboles, mínimo 5 por hoja | 0,737 | 0,717 | 0,758 | 0,774 |
+
+**Modelo elegido: regresión logística con umbral 0,55.**
+- La logística, SVM y Random Forest empatan: sus diferencias son menores que el desvío entre pliegues. Se eligió la regresión logística por ser la más simple e interpretable.
+- El umbral 0,55 maximiza el F1 de "no asiste" en validación. Detecta más jóvenes que no asisten que el corte habitual de 0,50, a cambio de algunos falsos positivos más.
+
+**Evaluación final en la prueba (3.497 jóvenes de 2026, viviendas no vistas):**
+
+| | F1 "no asiste" | Recall "no asiste" | Precisión "no asiste" | Exactitud |
+|---|---:|---:|---:|---:|
+| Regresión logística (final) | 0,747 | 0,765 | 0,730 | 0,759 |
+| Referencia | 0,000 | 0,000 | 0,000 | 0,535 |
+| Regresión logística sin `condicion_actividad` | 0,691 | 0,713 | 0,670 | 0,703 |
+
+- El modelo detecta a 1.243 de los 1.625 jóvenes de la prueba que no asisten. De cada 10 que marca como "no asiste", alrededor de 7 efectivamente no asisten.
+- El desempeño es parecido al de validación, así que el modelo se puede aplicar a un trimestre nuevo de la EPH.
+- Las variables con más peso son la condición de actividad, el estado civil, el nivel educativo del jefe/a, la cobertura de salud, el sexo, los menores de 10 años en el hogar y la situación del ingreso del resto del hogar. Son asociaciones, no causas.
+
+---
+
+## 5. Limitaciones y alcances
+
+- **Alcance de la muestra:** los datos se usan sin ponderar. Los resultados describen la muestra de la EPH de 31 aglomerados urbanos; no son estimaciones para toda la población joven del país, y no incluyen la población rural.
+- **Momento de la medición:** se predice la asistencia **actual**, no si el joven empezará o abandonará un estudio en el futuro.
+- **Zona gris:** buena parte del desempeño depende de la condición de actividad, que puede ser en parte consecuencia de estudiar. Sin esa variable, el F1 de "no asiste" en la prueba baja de 0,747 a 0,691.
+- **Asociación no es causalidad:** los coeficientes indican con qué se asocia la asistencia en la muestra, no qué pasaría si cambiara una característica.
+- **Ingresos:** casi 3 de cada 10 hogares no respondieron ingresos. Se imputó la mediana, pero eso no recupera el dato verdadero, por eso la situación del ingreso entra al modelo como variable. El percentil hace comparables los trimestres, aunque pierde el nivel absoluto del ingreso.
+- **Registros relacionados:** se conservó una observación por persona y se excluyeron del entrenamiento 107 jóvenes de viviendas que también están en la prueba. El panel de la EPH no permite seguir a una persona que cambió de vivienda.
+- **Respuestas desconocidas:** 3 observaciones sin dato de asistencia se excluyeron.
+
+---
+
+## 6. Conclusiones y trabajo futuro
+
+**Conclusiones (acotadas a la muestra analizada).**
+- Con información disponible en el momento de la encuesta, el modelo identifica a alrededor de 3 de cada 4 jóvenes que no asisten al nivel superior, mientras que la línea base no detecta a ninguno.
+- Los modelos de la cursada obtienen resultados parecidos. Con un desempeño equivalente, la regresión logística ofrece la ventaja de ser interpretable y de permitir ajustar el umbral al uso.
+- Las asociaciones que aprende el modelo son coherentes con el análisis exploratorio, sobre todo la relación de la asistencia con la situación laboral del joven y con el clima educativo del hogar. Son hipótesis para validar con más datos, no relaciones causales.
+
+**Trabajo futuro.**
+- Reentrenar y evaluar con cada nueva EPH trimestral (el "segundo tiempo" del planteo).
+- Incorporar variables que hoy no están en la encuesta, como la oferta de instituciones de nivel superior cercanas.
+- Estudiar por separado a jóvenes ocupados e inactivos, para entender mejor la relación entre trabajo y estudio.
+
+---
+
+## 7. Dónde encontrar cada parte del trabajo
 
 | Qué | Dónde |
 |---|---|
@@ -142,18 +220,21 @@ La descripción completa del dataset (origen, construcción, variables, tipos de
 | Carga de las bases originales y construcción del dataset | [`notebooks/1.0-lei-carga-y-construccion-dataset.ipynb`](notebooks/1.0-lei-carga-y-construccion-dataset.ipynb) |
 | Análisis exploratorio de datos (EDA), solo con el conjunto de entrenamiento | [`notebooks/2.0-lei-analisis-exploratorio.ipynb`](notebooks/2.0-lei-analisis-exploratorio.ipynb) |
 | Preprocesamiento: recodificación, agrupación de categorías, imputación, codificación y escalado | [`notebooks/3.0-lei-preprocesamiento.ipynb`](notebooks/3.0-lei-preprocesamiento.ipynb) |
+| Modelado: validación cruzada, elección de hiperparámetros y umbral, evaluación final e interpretación | [`notebooks/4.0-lei-modelado-y-evaluacion.ipynb`](notebooks/4.0-lei-modelado-y-evaluacion.ipynb) |
 | Matrices preparadas (con y sin escalado) | [`data/processed/`](data/processed/) |
+| Métricas de validación y de prueba, coeficientes del modelo final | [`reports/`](reports/) |
+| Modelo final guardado | [`models/regresion_logistica_final.joblib`](models/regresion_logistica_final.joblib) |
 | Gráficos generados | [`reports/figures/`](reports/figures/) |
 | Ajustes realizados a partir de la devolución de la primera entrega | [`docs/ajustes_devolucion_entrega1.md`](docs/ajustes_devolucion_entrega1.md) |
 | Ajustes realizados a partir de la devolución de la segunda entrega | [`docs/ajustes_devolucion_entrega2.md`](docs/ajustes_devolucion_entrega2.md) |
 
 ---
 
-## 5. Cómo reproducir
+## 8. Cómo reproducir
 
 ### Opción A: Google Colab (la utilizada en este proyecto)
 
-Colab ya trae instaladas las librerías que usan las notebooks (pandas, NumPy, Matplotlib y scikit-learn). Solo hace falta descargar el repositorio para tener los datos:
+Colab ya trae instaladas las librerías que usan las notebooks (pandas, NumPy, Matplotlib, scikit-learn y joblib). Solo hace falta descargar el repositorio para tener los datos:
 
 1. Abrir una notebook en Colab: **Archivo → Abrir notebook → GitHub** y pegar la dirección de este repositorio.
 2. Agregar una celda al principio y ejecutarla:
@@ -163,7 +244,9 @@ Colab ya trae instaladas las librerías que usan las notebooks (pandas, NumPy, M
 %cd prediccion-asistencia-nivel-superior-eph/notebooks
 ```
 
-3. Ejecutar las notebooks en orden: 1.0, 2.0 y 3.0.
+3. Ejecutar las notebooks en orden: 1.0, 2.0, 3.0 y 4.0.
+
+Las notebooks usan **rutas relativas** a la carpeta `notebooks/` (por ejemplo, `../data/raw/`), por eso hay que ejecutarlas desde esa carpeta. Si se ejecutan desde otra ubicación, hay que reemplazar esas rutas por la ruta local donde están los datos; cada notebook lo indica en un comentario.
 
 ### Opción B: en una computadora local (Anaconda)
 
@@ -179,11 +262,15 @@ pip install -r requirements.txt
 python asistencia_superior/dataset.py
 ```
 
-Después se pueden ejecutar con Jupyter las notebooks de `notebooks/`, en orden (1.0, 2.0 y 3.0).
+Después se pueden ejecutar con Jupyter las notebooks de `notebooks/`, en orden (1.0, 2.0, 3.0 y 4.0).
+
+### Versiones
+
+Las salidas guardadas en las notebooks se obtuvieron con Python 3.13, pandas 3.0, NumPy 2.5, Matplotlib 3.11 y scikit-learn 1.9. Se requiere scikit-learn 1.2 o posterior (por `OneHotEncoder(sparse_output=...)`); las versiones mínimas están en [`requirements.txt`](requirements.txt). Con otras versiones de las librerías los resultados pueden variar levemente en los últimos decimales. La validación usa una semilla fija (`random_state = 42`).
 
 ---
 
-## 6. Organización del proyecto
+## 9. Organización del proyecto
 
 Estructura generada con la plantilla [Cookiecutter Data Science](https://github.com/drivendataorg/cookiecutter-data-science) (versión 2). Las carpetas y archivos marcados como *plantilla* vienen de Cookiecutter y todavía no se usan.
 
@@ -200,16 +287,17 @@ Estructura generada con la plantilla [Cookiecutter Data Science](https://github.
 ├── docs               <- Informe técnico del dataset, descripción del proyecto, ajustes por devoluciones
 │                         e imágenes del README (img/)
 │
-├── models             <- (plantilla, sin uso)
+├── models             <- Modelo final entrenado (regresión logística y su umbral)
 │
 ├── notebooks          <- Notebooks numeradas: número, iniciales de la autora y descripción
-│                         (1.0 carga y construcción, 2.0 análisis exploratorio, 3.0 preprocesamiento)
+│                         (1.0 carga y construcción, 2.0 análisis exploratorio, 3.0 preprocesamiento,
+│                         4.0 modelado y evaluación)
 │
 ├── pyproject.toml     <- Configuración del paquete `asistencia_superior` y de ruff
 │
 ├── references         <- Material de referencia (diseño de registro de la EPH)
 │
-├── reports
+├── reports            <- Métricas de validación y de prueba, coeficientes del modelo final
 │   └── figures        <- Gráficos generados
 │
 ├── requirements.txt   <- Dependencias para reproducir el análisis
@@ -225,7 +313,7 @@ Estructura generada con la plantilla [Cookiecutter Data Science](https://github.
 
 ---
 
-## 7. Tecnologías utilizadas
+## 10. Tecnologías utilizadas
 
 `Python` · `pandas` · `NumPy` · `Matplotlib` · `scikit-learn` · `Jupyter Notebook` · `Cookiecutter Data Science` · `Git / GitHub`
 

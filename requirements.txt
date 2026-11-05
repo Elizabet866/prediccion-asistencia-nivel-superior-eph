@@ -1,14 +1,15 @@
 ipython
 jupyterlab
 loguru
-matplotlib
+matplotlib>=3.7
 notebook
-numpy
-pandas
+numpy>=1.24
+pandas>=2.0
 pip
 python-dotenv
 ruff
-scikit-learn
+scikit-learn>=1.2
+joblib
 tqdm
 typer
 -e .
