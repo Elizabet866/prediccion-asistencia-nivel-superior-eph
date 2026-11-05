@@ -17,6 +17,7 @@ El trabajo con los datos (código y resultados) está en las notebooks:
 | [`1.0-lei-carga-y-construccion-dataset`](../notebooks/1.0-lei-carga-y-construccion-dataset.ipynb) | Carga de las bases originales y construcción del dataset |
 | [`2.0-lei-analisis-exploratorio`](../notebooks/2.0-lei-analisis-exploratorio.ipynb) | Análisis exploratorio de datos (EDA), solo con el conjunto de entrenamiento |
 | [`3.0-lei-preprocesamiento`](../notebooks/3.0-lei-preprocesamiento.ipynb) | Limpieza, transformaciones, codificación y escalado |
+| [`4.0-lei-modelado-y-evaluacion`](../notebooks/4.0-lei-modelado-y-evaluacion.ipynb) | Modelado, validación cruzada y evaluación final (resumen en el [README](../README.md#4-modelado-y-resultados)) |
 
 ## Contenido
 
@@ -192,7 +193,32 @@ Varias columnas están guardadas como números pero son **categóricas**: los n�
 
 Los códigos provienen del diseño de registro de la EPH continua (INDEC).
 
-### Identificación y diseño muestral
+### 5.1 Variables de las bases originales
+
+Las bases originales tienen 235 columnas (personas) y 98 (hogares). El **diccionario completo de todas ellas es el diseño de registro oficial del INDEC** ([1T 2025](https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_registro_1T2025.pdf)), que describe cada variable y sus códigos; por eso no se reproduce aquí. La tabla siguiente indica qué se hizo con cada variable original que interviene en el proyecto, y qué pasó con el resto.
+
+| Variables EPH | Base | Significado | Uso en el proyecto |
+|---|---|---|---|
+| `CODUSU`, `NRO_HOGAR`, `COMPONENTE` | ambas | Identificación de vivienda, hogar y persona | Identificadores: vinculación y control del panel. No son predictoras |
+| `ANO4`, `TRIMESTRE` | ambas | Año y trimestre de la encuesta | Identificación y partición temporal. No son predictoras |
+| `PONDERA` | personas | Ponderador (factor de expansión) | Se conserva como `ponderador`; no se usa (sección 9) |
+| `PONDIH` | personas | Ponderador para variables de ingreso | Solo para calcular el percentil del ingreso dentro del trimestre |
+| `CH10`, `CH12` | personas | Asistencia a un establecimiento educativo y nivel que cursa o cursó | Construyen la variable objetivo. Excluidas de las predictoras |
+| `NIVEL_ED` | personas | Nivel educativo alcanzado | Del joven: delimita la población; excluido por fuga. Del jefe/a: predictora `jefe_nivel_educativo` |
+| `CH06` | personas | Edad | Delimita la población y predictora `edad` |
+| `CH03` | personas | Relación de parentesco con el jefe/a | Predictora `parentesco_jefe`; identifica al jefe/a del hogar |
+| `CH04`, `CH07`, `CH08`, `CH15` | personas | Sexo, estado civil, cobertura de salud, lugar de nacimiento | Predictoras (`sexo`, `estado_civil`, `cobertura_salud`, `lugar_nacimiento`) |
+| `ESTADO` | personas | Condición de actividad | Del joven: predictora `condicion_actividad` (zona gris). Del jefe/a: `jefe_condicion_actividad` |
+| `REGION`, `AGLOMERADO` | personas | Región y aglomerado | `region` es predictora; `aglomerado` queda como referencia (repite la región con muchas categorías) |
+| `IV1`, `II7` | hogares | Tipo de vivienda y régimen de tenencia | Predictoras (`tipo_vivienda`, `tenencia_vivienda`) |
+| `IX_TOT`, `IX_MEN10`, `II1` | hogares | Integrantes, menores de 10 años y ambientes | Predictoras (`personas_hogar`, `menores_10_hogar`) y cálculo de `personas_por_ambiente` |
+| `ITF`, `P47T`, `IPCF`, `DECCFR` | personas | Ingreso total familiar, ingreso total individual, ingreso per cápita familiar y decil | Solo para construir el ingreso del resto del hogar, su situación y su percentil. Excluidos como predictoras (incluyen ingresos que pueden depender de estudiar) |
+| `CH11`, `CH13`, `CH14`, `CAT_INAC`, `V11_01_M`, `V11_02_M`, `V12_M` | personas | Trayectoria educativa, categoría de inactividad, becas de estudio, cuota alimentaria | **Excluidas por fuga de información** (sección 6) |
+| Resto de las columnas | ambas | Detalle de ocupación, búsqueda de empleo, ingresos por fuente, características de la vivienda, etc. | **Descartadas:** no se usan. Muchas son respuestas que dependen de la situación laboral (preguntas que se hacen solo a ocupados o desocupados) o desagregaciones de los ingresos que ya se resumen en `ITF` |
+
+### 5.2 Columnas del dataset del proyecto
+
+#### Identificación y diseño muestral
 
 | Columna | Origen EPH | Descripción |
 |---|---|---|
@@ -203,13 +229,13 @@ Los códigos provienen del diseño de registro de la EPH continua (INDEC).
 | `particion` | derivada de `trimestre` y `codusu` | `entrenamiento` (2025) · `prueba` (1T 2026) · `excluida_vivienda_en_prueba` (joven de 2025 que vive en una vivienda con jóvenes en la prueba; no se usa) |
 | `ponderador` | `PONDERA` | Factor de expansión del trimestre: cuántas personas de la población representa cada caso. No se usa en el análisis (sección 9) |
 
-### Variable objetivo
+#### Variable objetivo
 
 | Columna | Construcción | Valores |
 |---|---|---|
 | `asiste_superior` | `CH10 == 1` y `CH12` ∈ {6, 7, 8} | 1 = asiste actualmente al nivel superior · 0 = no asiste actualmente (respuesta conocida). Las observaciones con respuesta desconocida no están en el dataset |
 
-### Variables del joven
+#### Variables del joven
 
 | Columna | Origen EPH | Códigos |
 |---|---|---|
@@ -222,7 +248,7 @@ Los códigos provienen del diseño de registro de la EPH continua (INDEC).
 | `lugar_nacimiento` | `CH15` | 1 En esta localidad · 2 En otra localidad de esta provincia · 3 En otra provincia · 4 En un país limítrofe · 5 En otro país · 9 Ns/Nr |
 | `condicion_actividad` | `ESTADO` | 0 Entrevista individual no realizada · 1 Ocupado/a · 2 Desocupado/a · 3 Inactivo/a |
 
-### Variables del hogar
+#### Variables del hogar
 
 | Columna | Origen EPH | Descripción / códigos |
 |---|---|---|
@@ -235,7 +261,7 @@ Los códigos provienen del diseño de registro de la EPH continua (INDEC).
 | `ingreso_resto_hogar_pc` | `(ITF − P47T) / (IX_TOT − 1)` | Ingreso per cápita del resto del hogar, en **pesos corrientes** del trimestre, **sin los ingresos propios del joven**. Vacío si vive solo o si el hogar no respondió. Se conserva como referencia: no es comparable entre trimestres y no entra al modelo |
 | `percentil_ingreso_resto` | derivada de `ingreso_resto_hogar_pc` | Posición (0 a 100) del ingreso anterior dentro de la distribución del ingreso per cápita familiar (`IPCF`) de todas las personas de la EPH de **su mismo trimestre** cuyo hogar respondió ingresos, ponderada con `PONDIH`. Comparable entre trimestres. Vacío en los mismos casos que el monto |
 
-### Variables del jefe o jefa de hogar
+#### Variables del jefe o jefa de hogar
 
 Se toman de la persona del mismo hogar con `CH03 = 1`. Quedan vacías (no aplica) solo si el joven es el propio jefe/a. Si el joven es cónyuge, corresponden a su pareja.
 
@@ -245,7 +271,7 @@ Se toman de la persona del mismo hogar con `CH03 = 1`. Quedan vacías (no aplica
 | `jefe_sexo` | `CH04` del jefe/a | 1 Varón · 2 Mujer |
 | `jefe_condicion_actividad` | `ESTADO` del jefe/a | 0 Entrevista individual no realizada · 1 Ocupado/a · 2 Desocupado/a · 3 Inactivo/a |
 
-### Ubicación
+#### Ubicación
 
 | Columna | Origen EPH | Códigos |
 |---|---|---|
@@ -341,6 +367,8 @@ En la versión anterior había 675 ceros, de los cuales 540 correspondían a jó
 
 **Preparación.** El percentil va de 0 a 100 sin cola larga: no necesita logaritmo, solo imputación por **mediana del entrenamiento** y estandarización. Se imputa en los casos de vive solo y sin respuesta; imputar no recupera el dato verdadero, por eso `situacion_ingreso_resto` entra al modelo como categoría (one-hot) y permite distinguir los valores completados.
 
+**Cortes creados para visualizar.** En el EDA, el percentil se agrupa en quintiles con cortes fijos (0–20, 20–40, …, 80–100), que siguen la lógica de los deciles del INDEC y no dependen de la muestra, y los menores de 10 años se agrupan como "3 o más" porque esos hogares son pocos. Estos cortes se usan **solo para los gráficos**: el modelo usa el percentil y la cantidad de menores como variables numéricas, sin perder información.
+
 ### 7.4 Partición entrenamiento / prueba
 
 Temporal, definida en la notebook `1.0` (sección 3.5): entrenamiento con los trimestres de 2025 (6.059 jóvenes, 55,9 % asiste) y prueba con el 1T 2026 (3.497 jóvenes, 53,5 % asiste); 107 jóvenes de 2025 excluidos por vivir en una vivienda con jóvenes en la prueba. Sin personas ni viviendas compartidas.
@@ -367,6 +395,8 @@ Se preparan dos variantes: **escalada**, para métodos sensibles a la escala (re
 | [`data/processed/matriz_preparada_sin_escalar.csv`](../data/processed/matriz_preparada_sin_escalar.csv) | Matriz de entrada preparada, sin escalado; incluye `codusu`, `particion` y `asiste_superior` | 9.556 × 58 |
 
 Las matrices tienen 9.556 filas (6.059 + 3.497) porque no incluyen a los 107 jóvenes excluidos por vivienda compartida.
+
+La notebook `4.0` genera además `reports/metricas_validacion.csv`, `reports/metricas_prueba.csv`, `reports/coeficientes_regresion_logistica.csv` y el modelo final `models/regresion_logistica_final.joblib`.
 
 ## 9. Alcance y representatividad
 
