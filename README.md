@@ -171,7 +171,7 @@ El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-m
 | Random Forest | 300 árboles, mínimo 5 por hoja | 0,737 | 0,717 | 0,758 | 0,774 |
 
 **Modelo elegido: regresión logística con umbral 0,55.**
-- La logística, SVM y Random Forest empatan: sus diferencias son menores que el desvío entre pliegues. Se eligió la regresión logística por ser la más simple e interpretable.
+- La logística no es la de mayor F1 promedio (SVM y Random Forest obtienen 0,737 frente a 0,733), pero la diferencia es mucho menor que el desvío entre pliegues (≈ 0,01): los tres son equivalentes en validación. Entre ellos se eligió la regresión logística por ser la más simple e interpretable.
 - El umbral 0,55 maximiza el F1 de "no asiste" en validación. Detecta más jóvenes que no asisten que el corte habitual de 0,50, a cambio de algunos falsos positivos más.
 
 **Evaluación final en la prueba (3.497 jóvenes de 2026, viviendas no vistas):**
@@ -183,7 +183,8 @@ El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-m
 | Regresión logística sin `condicion_actividad` | 0,691 | 0,713 | 0,670 | 0,703 |
 
 - El modelo detecta a 1.243 de los 1.625 jóvenes de la prueba que no asisten. De cada 10 que marca como "no asiste", alrededor de 7 efectivamente no asisten.
-- El desempeño es parecido al de validación, así que el modelo se puede aplicar a un trimestre nuevo de la EPH.
+- El desempeño es parecido al de validación, lo que sugiere que el modelo puede aplicarse a un trimestre nuevo de la EPH (se comprobó con un solo trimestre de prueba).
+- **Qué significan los errores:** 382 jóvenes que no asisten (1 de cada 4) quedarían sin detectar, y 460 que sí asisten recibirían un ofrecimiento de acompañamiento que no necesitan. El umbral elegido acepta el segundo error para reducir el primero, que es el más costoso para el objetivo.
 - Las variables con más peso son la condición de actividad, el estado civil, el nivel educativo del jefe/a, la cobertura de salud, el sexo, los menores de 10 años en el hogar y la situación del ingreso del resto del hogar. Son asociaciones, no causas.
 
 ---
