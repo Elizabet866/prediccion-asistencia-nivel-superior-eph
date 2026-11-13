@@ -27,7 +27,7 @@ Proyecto de Aprendizaje Automático que busca predecir si un joven de 18 a 24 a�
 | **Materia** | Aprendizaje Automático |
 | **Docente** | Nicolás Caballero |
 | **Tipo de problema** | Clasificación binaria supervisada |
-| **Video de presentación** | *(agregar el enlace al video)* |
+| **Video de presentación** | [Ver video en Google Drive](https://drive.google.com/file/d/1h7aN4uooHGscgsqYq2HpUxwZszhKhSOL/view?usp=sharing) |
 
 ## Abstract
 
