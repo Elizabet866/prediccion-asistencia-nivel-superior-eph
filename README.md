@@ -40,7 +40,7 @@ This project presents a supervised classification model that predicts whether yo
 | Entrega | Contenido | Estado |
 |---|---|---|
 | 1. Descripción y formulación del objetivo | Problema, contexto, objetivos, tipo de problema y modelos candidatos ([sección 1](#1-descripción-del-proyecto-y-objetivos)) | Entregada |
-| 2. Descripción del dataset y origen | [Informe técnico del dataset](docs/informe_dataset.md) y notebooks de carga, análisis exploratorio y preprocesamiento | Entregada · [ajustada con la devolución](docs/ajustes_devolucion_entrega2.md) |
+| 2. Descripción del dataset y origen | [Informe técnico del dataset](docs/informe_dataset.md) y notebooks de carga, análisis exploratorio y preprocesamiento | Entregada · [ajustada con la devolución](docs/ajustes_dataset_y_preprocesamiento.md) |
 | 3. Presentación del modelo y análisis de resultados | Notebook de modelado y evaluación ([sección 4](#4-modelado-y-resultados)), resultados, limitaciones y video | Entregada |
 
 ## Contenido
@@ -60,7 +60,7 @@ This project presents a supervised classification model that predicts whether yo
 
 ## 1. Descripción del proyecto y objetivos
 
-> Contenido de la primera entrega, actualizado con la devolución del docente. El detalle de cada ajuste está en [docs/ajustes_devolucion_entrega1.md](docs/ajustes_devolucion_entrega1.md).
+> Contenido de la primera entrega, actualizado con la devolución del docente. El detalle de cada ajuste está en [docs/ajustes_definicion_y_objetivos.md](docs/ajustes_definicion_y_objetivos.md).
 
 ### Contexto y relevancia del problema
 
@@ -140,6 +140,20 @@ La predicción se hace **en el momento de la encuesta**, con datos del joven y d
 - **Dataset del proyecto:** [`data/processed/eph_jovenes_asistencia_superior.csv`](data/processed/eph_jovenes_asistencia_superior.csv) — **9.663 jóvenes** (una fila por persona) y **28 columnas**. Clases equilibradas: 54,8 % asiste y 45,2 % no asiste.
 - **Partición temporal:** entrenamiento con 2025 (6.059 jóvenes, 55,9 % asiste) y prueba con el 1T 2026 (3.497 jóvenes, 53,5 % asiste). Se excluyen del entrenamiento 107 jóvenes que viven en viviendas que también tienen jóvenes en la prueba.
 - **Alcance:** los análisis se hacen sin ponderar y describen la muestra analizada; no se presentan como estimaciones para toda la población.
+
+### Principales hallazgos del análisis exploratorio
+
+Calculados solo con el conjunto de entrenamiento (6.059 jóvenes, sin ponderar). Son asociaciones observadas en la muestra, no relaciones causales.
+
+- **Educación del jefe/a de hogar:** la asistencia crece del 32 % (primaria incompleta o menos) al 77 % (superior completo).
+- **Condición de actividad:** los jóvenes inactivos asisten mucho más (77 %) que los ocupados y desocupados (alrededor de 32 %).
+- **Niños pequeños en el hogar:** la asistencia baja del 61 % (sin menores de 10 años) al 22 % (dos o más).
+- **Ingreso del resto del hogar:** la asistencia sube del 39 % en el quintil más bajo al 70 % en el más alto de su trimestre.
+- **Situación del ingreso:** los jóvenes que viven solos asisten un 80 % y los de hogares con ingreso cero observado, un 37 %; por eso se mantienen como categorías separadas.
+
+![Asistencia según características personales](reports/figures/eda_asistencia_personales.png)
+
+El análisis completo está en [`notebooks/2.0-lei-analisis-exploratorio.ipynb`](notebooks/2.0-lei-analisis-exploratorio.ipynb).
 
 La descripción completa del dataset (origen, construcción, variables, tipos de datos, diccionario y decisiones) está en el **informe técnico [`docs/informe_dataset.md`](docs/informe_dataset.md)**.
 
@@ -228,8 +242,8 @@ El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-m
 | Métricas de validación y de prueba, coeficientes del modelo final | [`reports/`](reports/) |
 | Modelo final guardado | [`models/regresion_logistica_final.joblib`](models/regresion_logistica_final.joblib) |
 | Gráficos generados | [`reports/figures/`](reports/figures/) |
-| Ajustes realizados a partir de la devolución de la primera entrega | [`docs/ajustes_devolucion_entrega1.md`](docs/ajustes_devolucion_entrega1.md) |
-| Ajustes realizados a partir de la devolución de la segunda entrega | [`docs/ajustes_devolucion_entrega2.md`](docs/ajustes_devolucion_entrega2.md) |
+| Ajustes realizados a partir de la devolución de la primera entrega | [`docs/ajustes_definicion_y_objetivos.md`](docs/ajustes_definicion_y_objetivos.md) |
+| Ajustes realizados a partir de la devolución de la segunda entrega | [`docs/ajustes_dataset_y_preprocesamiento.md`](docs/ajustes_dataset_y_preprocesamiento.md) |
 
 ---
 
