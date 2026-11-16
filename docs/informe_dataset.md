@@ -32,7 +32,7 @@ El trabajo con los datos (código y resultados) está en las notebooks:
 9. [Alcance y representatividad](#9-alcance-y-representatividad)
 10. [Limitaciones](#10-limitaciones)
 
-Los ajustes realizados a partir de la devolución de la segunda entrega están resumidos en [`ajustes_devolucion_entrega2.md`](ajustes_devolucion_entrega2.md).
+Los ajustes realizados a partir de la devolución de la segunda entrega están resumidos en [`ajustes_dataset_y_preprocesamiento.md`](ajustes_dataset_y_preprocesamiento.md).
 
 ---
 

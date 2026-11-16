@@ -6,7 +6,7 @@
 
 **Docente:** Nicolás Caballero
 
-**Versión:** actualizada con la devolución de la primera entrega (los cambios se detallan en [ajustes_devolucion_entrega1.md](ajustes_devolucion_entrega1.md)).
+**Versión:** actualizada con la devolución de la primera entrega (los cambios se detallan en [ajustes_definicion_y_objetivos.md](ajustes_definicion_y_objetivos.md)).
 
 ## Título del proyecto
 
