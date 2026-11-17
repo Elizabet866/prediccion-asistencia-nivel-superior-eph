@@ -327,7 +327,7 @@ Detalle con código y resultados en la notebook `3.0`. Se resumen aquí porque a
 
 | Variable | Motivo |
 |---|---|
-| `codusu`, `nro_hogar`, `componente` | Identifican, no miden (`codusu` se guarda en las matrices solo para agrupar por hogar en la validación) |
+| `codusu`, `nro_hogar`, `componente` | Identifican, no miden (`codusu` se guarda en el dataset recodificado solo para agrupar por vivienda en la validación) |
 | `ponderador` | Factor de expansión de la encuesta, no una característica del joven (sección 9) |
 | `trimestre`, `particion` | Se usan solo para separar entrenamiento y prueba |
 | `es_jefe_hogar` | Su información queda contenida en `parentesco_jefe` |
@@ -375,7 +375,10 @@ Temporal, definida en la notebook `1.0` (sección 3.5): entrenamiento con los tr
 
 ### 7.5 Imputación, codificación y escalado
 
-Todos los parámetros se aprenden **solo con el entrenamiento** y se aplican sin cambios a la prueba.
+Estos pasos aprenden parámetros de los datos (medianas, medias, desvíos y categorías), así que se definen en un `ColumnTransformer` que se combina con cada modelo en un `Pipeline` (notebook `4.0`):
+
+- en la **validación cruzada**, el `Pipeline` se ajusta en cada pliegue solo con la parte de entrenamiento de ese pliegue, y la parte de validación no influye en la imputación, la escala ni la codificación;
+- el **modelo final** se ajusta con todo el entrenamiento y se aplica sin cambios a la prueba.
 
 | Grupo | Pasos |
 |---|---|
@@ -383,7 +386,7 @@ Todos los parámetros se aprenden **solo con el entrenamiento** y se aplican sin
 | Binarias (sexo_mujer) | Sin cambios |
 | Nominales (incluye `situacion_ingreso_resto`) | Categoría más frecuente → one-hot |
 
-Se preparan dos variantes: **escalada**, para métodos sensibles a la escala (regresión logística, KNN, SVM), y **sin escalar**, para árboles de decisión, que trabajan con umbrales. Resultado: 18 variables de entrada que se convierten en 55 columnas después del one-hot.
+Hay dos variantes del preprocesador: **con escalado**, para métodos sensibles a la escala (regresión logística, KNN, SVM), y **sin escalado**, para árboles de decisión y Random Forest, que trabajan con umbrales. Resultado: 18 variables de entrada que se convierten en 55 columnas después del one-hot. El one-hot conserva todas las categorías; por eso, en la regresión logística, cada categoría se interpreta comparándola con una categoría de referencia de la misma variable (notebook `4.0`, sección 10).
 
 ## 8. Archivos generados
 
@@ -391,12 +394,11 @@ Se preparan dos variantes: **escalada**, para métodos sensibles a la escala (re
 |---|---|---|
 | [`data/interim/eph_jovenes_18a24_todas_las_observaciones.csv`](../data/interim/eph_jovenes_18a24_todas_las_observaciones.csv) | Población de estudio con todas las observaciones del panel (incluye las 3 con respuesta desconocida, marcadas con `respuesta_conocida = 0`) y las variables originales `CH10`, `CH12`, `NIVEL_ED` e ingresos, para verificar las construcciones | 13.883 × 38 |
 | [`data/processed/eph_jovenes_asistencia_superior.csv`](../data/processed/eph_jovenes_asistencia_superior.csv) | Dataset final, una fila por persona, con la partición (secciones 4 y 5) | 9.663 × 28 |
-| [`data/processed/matriz_preparada_escalada.csv`](../data/processed/matriz_preparada_escalada.csv) | Matriz de entrada preparada, con escalado; incluye `codusu`, `particion` y `asiste_superior` | 9.556 × 58 |
-| [`data/processed/matriz_preparada_sin_escalar.csv`](../data/processed/matriz_preparada_sin_escalar.csv) | Matriz de entrada preparada, sin escalado; incluye `codusu`, `particion` y `asiste_superior` | 9.556 × 58 |
+| [`data/processed/eph_jovenes_recodificado.csv`](../data/processed/eph_jovenes_recodificado.csv) | Dataset recodificado (reglas por código y agrupaciones de la sección 7.2), **antes** de imputar, escalar y codificar; incluye `codusu`, `particion`, `asiste_superior` y las 18 variables de entrada. Es la entrada de los `Pipeline` de la notebook `4.0` | 9.556 × 21 |
 
-Las matrices tienen 9.556 filas (6.059 + 3.497) porque no incluyen a los 107 jóvenes excluidos por vivienda compartida.
+El dataset recodificado tiene 9.556 filas (6.059 + 3.497) porque no incluye a los 107 jóvenes excluidos por vivienda compartida. No se guardan matrices ya transformadas, porque la imputación, el escalado y la codificación se ajustan dentro de cada pliegue de la validación.
 
-La notebook `4.0` genera además `reports/metricas_validacion.csv`, `reports/metricas_prueba.csv`, `reports/coeficientes_regresion_logistica.csv` y el modelo final `models/regresion_logistica_final.joblib`.
+La notebook `4.0` genera además `reports/metricas_validacion.csv`, `reports/metricas_prueba.csv`, `reports/coeficientes_regresion_logistica.csv` y el modelo final `models/regresion_logistica_final.joblib` (el `Pipeline` completo y el umbral).
 
 ## 9. Alcance y representatividad
 

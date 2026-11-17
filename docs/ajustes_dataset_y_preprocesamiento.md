@@ -79,7 +79,7 @@ Al corregir este punto también se detectó que los montos con decimales de la E
 | El **EDA usa solo el entrenamiento** (6.059 jóvenes de 2025). Se recalcularon todas las cifras. | Notebook 2.0 |
 | En la preparación se separan las reglas fijadas por el **significado de los códigos** (Ns/Nr → faltante, no aplica, etiquetas), que se aplican a los dos conjuntos, de las **agrupaciones de categorías poco frecuentes**, que se verifican con las frecuencias del entrenamiento y después se aplican sin cambios a la prueba. | Notebook 3.0, secciones 3 y 4; [informe, 7.2](informe_dataset.md#72-recodificación-y-agrupación-de-categorías) |
 | Se revisaron las **viviendas**: 100 viviendas (92 hogares) tienen jóvenes en 2025 y en 1T 2026. Se excluyen del entrenamiento sus 107 jóvenes de 2025, para evaluar sobre viviendas no vistas al entrenar (el escenario más exigente y el que no sobreestima el desempeño). La prueba no cambia. | Notebook 1.0, sección 10; [informe, 3.5](informe_dataset.md#35-partición-temporal-y-viviendas-compartidas) |
-| Dentro del entrenamiento hay hogares con más de un joven. Las matrices guardan `codusu` (no como variable de entrada) para poder agrupar por hogar en la validación cruzada de la etapa de modelado. | Notebook 3.0, secciones 2 y 7 |
+| Dentro del entrenamiento hay hogares con más de un joven. El dataset recodificado guarda `codusu` (no como variable de entrada) para poder agrupar por vivienda en la validación cruzada de la etapa de modelado. | Notebook 3.0, secciones 2 y 7 |
 
 ## Nota sobre representatividad
 
@@ -97,6 +97,6 @@ Al corregir este punto también se detectó que los montos con decimales de la E
 - `notebooks/2.0-lei-analisis-exploratorio.ipynb`
 - `notebooks/3.0-lei-preprocesamiento.ipynb`
 - `data/interim/eph_jovenes_18a24_todas_las_observaciones.csv`
-- `data/processed/` (dataset y las dos matrices preparadas)
+- `data/processed/` (dataset y datos preparados para el modelado)
 - `reports/figures/` (gráficos regenerados)
 - `docs/informe_dataset.md`, `docs/ajustes_definicion_y_objetivos.md` y `README.md`
