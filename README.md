@@ -128,7 +128,7 @@ La predicción se hace **en el momento de la encuesta**, con datos del joven y d
 
 | Momento | Qué se hace | Con qué datos |
 |---|---|---|
-| **1. Uso de la predicción** | Estimar si un joven asiste al nivel superior a partir de sus características y las de su hogar; por ejemplo, para identificar perfiles con menor asistencia y orientar acompañamientos o becas. | Las variables disponibles del joven y su hogar, sin información educativa propia. |
+| **1. Uso de la predicción** | Estimar si un joven asiste al nivel superior a partir de sus características y las de su hogar; por ejemplo, para identificar perfiles con menor asistencia como insumo para orientar políticas (becas, tutorías o acompañamientos). La clasificación describe una condición educativa: decidir a quién ofrecer un apoyo requiere información adicional. | Una base trimestral de la EPH con las variables del joven y su hogar, sin información educativa propia. El percentil del ingreso se calcula con la distribución de todo el trimestre, así que no alcanza con los datos aislados de una persona. |
 | **2. Evaluación con la realidad y corrección** | Comparar lo estimado con lo que efectivamente ocurrió y corregir o reentrenar. | El INDEC publica una nueva base de la EPH cada trimestre, con la respuesta real (`CH10`, `CH12`) de los jóvenes encuestados. |
 
 ---
@@ -163,13 +163,13 @@ La descripción completa del dataset (origen, construcción, variables, tipos de
 
 El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-modelado-y-evaluacion.ipynb`](notebooks/4.0-lei-modelado-y-evaluacion.ipynb).
 
-**Clase de interés: "no asiste" (0).** Son los jóvenes a quienes se dirigiría un acompañamiento o una beca. La métrica principal es el **F1 de "no asiste"**, que combina:
+**Clase de interés: "no asiste" (0).** Es la condición que el modelo busca identificar. El modelo clasifica una condición educativa, no una necesidad de apoyo: no asistir no demuestra que un joven necesite una beca, y asistir no implica que no necesite acompañamiento. La métrica principal es el **F1 de "no asiste"**, que combina:
 - **recall:** de los jóvenes que no asisten, qué proporción detecta el modelo;
 - **precisión:** de los que el modelo marca como "no asiste", qué proporción realmente no asiste.
 
 **Método.**
 1. El conjunto de prueba (1T 2026) queda reservado.
-2. Con el entrenamiento (2025) se eligen los hiperparámetros de cada modelo por **validación cruzada de 5 pliegues, agrupada por vivienda**, para que jóvenes del mismo hogar no queden repartidos entre entrenamiento y validación.
+2. Con el entrenamiento (2025) se eligen los hiperparámetros de cada modelo por **validación cruzada de 5 pliegues, agrupada por vivienda**, para que jóvenes del mismo hogar no queden repartidos entre entrenamiento y validación. La imputación, el escalado y la codificación van **dentro de un `Pipeline`** con cada modelo, así que en cada pliegue se ajustan solo con la parte de entrenamiento de ese pliegue.
 3. Se elige el modelo final y su **umbral de decisión**, también por validación.
 4. Recién entonces se evalúa **una sola vez** en la prueba.
 
@@ -178,28 +178,28 @@ El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-m
 | Modelo | Hiperparámetros elegidos | F1 | Recall | Precisión | Exactitud |
 |---|---|---:|---:|---:|---:|
 | Referencia (predice siempre "asiste") | — | 0,000 | 0,000 | 0,000 | 0,559 |
-| Regresión logística | C = 10 | 0,733 | 0,718 | 0,748 | 0,769 |
-| KNN | K = 21, ponderado por distancia | 0,699 | 0,648 | 0,758 | 0,753 |
+| Regresión logística | C = 1 | 0,732 | 0,717 | 0,748 | 0,769 |
+| KNN | K = 21, ponderado por distancia | 0,698 | 0,647 | 0,758 | 0,753 |
 | SVM (núcleo RBF) | C = 1, gamma = "scale" | 0,737 | 0,726 | 0,749 | 0,772 |
 | Árbol de decisión | profundidad 3, mínimo 60 por hoja | 0,728 | 0,792 | 0,675 | 0,739 |
-| Random Forest | 300 árboles, mínimo 5 por hoja | 0,737 | 0,717 | 0,758 | 0,774 |
+| Random Forest | 300 árboles, mínimo 5 por hoja | 0,736 | 0,716 | 0,757 | 0,773 |
 
 **Modelo elegido: regresión logística con umbral 0,55.**
-- La logística no es la de mayor F1 promedio (SVM y Random Forest obtienen 0,737 frente a 0,733), pero la diferencia es mucho menor que el desvío entre pliegues (≈ 0,01): los tres son equivalentes en validación. Entre ellos se eligió la regresión logística por ser la más simple e interpretable.
-- El umbral 0,55 maximiza el F1 de "no asiste" en validación. Detecta más jóvenes que no asisten que el corte habitual de 0,50, a cambio de algunos falsos positivos más.
+- La logística no es la de mayor F1 promedio (SVM obtiene 0,737 y Random Forest 0,736, frente a 0,732), pero la diferencia es menor que el desvío entre pliegues (≈ 0,01): los tres son equivalentes en validación. Entre ellos se eligió la regresión logística por ser la más simple e interpretable.
+- El umbral 0,55 maximiza el F1 de "no asiste" en validación: identifica más jóvenes que no asisten que el corte habitual de 0,50, a cambio de marcar como "no asiste" a algunos jóvenes más que sí asisten.
 
 **Evaluación final en la prueba (3.497 jóvenes de 2026, viviendas no vistas):**
 
 | | F1 "no asiste" | Recall "no asiste" | Precisión "no asiste" | Exactitud |
 |---|---:|---:|---:|---:|
-| Regresión logística (final) | 0,747 | 0,765 | 0,730 | 0,759 |
+| Regresión logística (final) | 0,748 | 0,767 | 0,730 | 0,760 |
 | Referencia | 0,000 | 0,000 | 0,000 | 0,535 |
-| Regresión logística sin `condicion_actividad` | 0,691 | 0,713 | 0,670 | 0,703 |
+| Regresión logística sin `condicion_actividad` | 0,692 | 0,714 | 0,671 | 0,705 |
 
-- El modelo detecta a 1.243 de los 1.625 jóvenes de la prueba que no asisten. De cada 10 que marca como "no asiste", alrededor de 7 efectivamente no asisten.
+- El modelo identifica a 1.246 de los 1.625 jóvenes de la prueba que no asisten. De cada 10 que marca como "no asiste", alrededor de 7 efectivamente no asisten.
 - El desempeño es parecido al de validación, lo que sugiere que el modelo puede aplicarse a un trimestre nuevo de la EPH (se comprobó con un solo trimestre de prueba).
-- **Qué significan los errores:** 382 jóvenes que no asisten (1 de cada 4) quedarían sin detectar, y 460 que sí asisten recibirían un ofrecimiento de acompañamiento que no necesitan. El umbral elegido acepta el segundo error para reducir el primero, que es el más costoso para el objetivo.
-- Las variables con más peso son la condición de actividad, el estado civil, el nivel educativo del jefe/a, la cobertura de salud, el sexo, los menores de 10 años en el hogar y la situación del ingreso del resto del hogar. Son asociaciones, no causas.
+- **Qué significan los errores:** 379 jóvenes que no asisten (1 de cada 4) quedan sin identificar, y 461 que sí asisten quedan marcados como "no asiste". Son errores sobre la **condición de asistencia**, no sobre la necesidad de apoyo: un joven que asiste también puede necesitar acompañamiento, y uno que no asiste no necesariamente necesita una beca.
+- **Interpretación de los coeficientes:** como el One-Hot Encoding conserva todas las categorías, cada categoría se compara con una categoría de referencia de su misma variable (`exp(coef_A − coef_ref)`). Con las demás variables constantes, un joven ocupado tiene chances de asistir de 0,13 veces las de uno inactivo; con solo plan público de salud, 0,27 veces las de quien tiene obra social o prepaga; unido/a o casado/a, 0,34 veces las de un soltero; y si el jefe/a tiene superior incompleto, 2,4 veces las de un jefe/a con secundaria completa. Las mujeres tienen chances 1,7 veces las de los varones. Son asociaciones, no causas.
 
 ---
 
@@ -207,7 +207,9 @@ El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-m
 
 - **Alcance de la muestra:** los datos se usan sin ponderar. Los resultados describen la muestra de la EPH de 31 aglomerados urbanos; no son estimaciones para toda la población joven del país, y no incluyen la población rural.
 - **Momento de la medición:** se predice la asistencia **actual**, no si el joven empezará o abandonará un estudio en el futuro.
-- **Zona gris:** buena parte del desempeño depende de la condición de actividad, que puede ser en parte consecuencia de estudiar. Sin esa variable, el F1 de "no asiste" en la prueba baja de 0,747 a 0,691.
+- **Zona gris:** buena parte del desempeño depende de la condición de actividad, que puede ser en parte consecuencia de estudiar. Sin esa variable, el F1 de "no asiste" en la prueba baja de 0,748 a 0,692.
+- **No asistencia no es necesidad de apoyo:** el modelo clasifica una condición educativa. Para decidir a quién ofrecer una beca o un acompañamiento hace falta información adicional.
+- **Escenario de aplicación:** el percentil del ingreso se calcula con la distribución de todo el trimestre, así que para aplicar el modelo hace falta la base trimestral de la EPH procesada como en las notebooks 1.0 y 3.0 (o una distribución de referencia equivalente); no alcanza con los datos aislados de una persona.
 - **Asociación no es causalidad:** los coeficientes indican con qué se asocia la asistencia en la muestra, no qué pasaría si cambiara una característica.
 - **Ingresos:** casi 3 de cada 10 hogares no respondieron ingresos. Se imputó la mediana, pero eso no recupera el dato verdadero, por eso la situación del ingreso entra al modelo como variable. El percentil hace comparables los trimestres, aunque pierde el nivel absoluto del ingreso.
 - **Registros relacionados:** se conservó una observación por persona y se excluyeron del entrenamiento 107 jóvenes de viviendas que también están en la prueba. El panel de la EPH no permite seguir a una persona que cambió de vivienda.
@@ -238,12 +240,13 @@ El detalle, con todas las pruebas de validación, está en [`notebooks/4.0-lei-m
 | Análisis exploratorio de datos (EDA), solo con el conjunto de entrenamiento | [`notebooks/2.0-lei-analisis-exploratorio.ipynb`](notebooks/2.0-lei-analisis-exploratorio.ipynb) |
 | Preprocesamiento: recodificación, agrupación de categorías, imputación, codificación y escalado | [`notebooks/3.0-lei-preprocesamiento.ipynb`](notebooks/3.0-lei-preprocesamiento.ipynb) |
 | Modelado: validación cruzada, elección de hiperparámetros y umbral, evaluación final e interpretación | [`notebooks/4.0-lei-modelado-y-evaluacion.ipynb`](notebooks/4.0-lei-modelado-y-evaluacion.ipynb) |
-| Matrices preparadas (con y sin escalado) | [`data/processed/`](data/processed/) |
+| Dataset recodificado (entrada de los modelos, antes de imputar, escalar y codificar) | [`data/processed/eph_jovenes_recodificado.csv`](data/processed/eph_jovenes_recodificado.csv) |
 | Métricas de validación y de prueba, coeficientes del modelo final | [`reports/`](reports/) |
-| Modelo final guardado | [`models/regresion_logistica_final.joblib`](models/regresion_logistica_final.joblib) |
+| Modelo final guardado (preprocesamiento + regresión logística + umbral) | [`models/regresion_logistica_final.joblib`](models/regresion_logistica_final.joblib) · [cómo usarlo](models/README.md) |
 | Gráficos generados | [`reports/figures/`](reports/figures/) |
 | Ajustes realizados a partir de la devolución de la primera entrega | [`docs/ajustes_definicion_y_objetivos.md`](docs/ajustes_definicion_y_objetivos.md) |
 | Ajustes realizados a partir de la devolución de la segunda entrega | [`docs/ajustes_dataset_y_preprocesamiento.md`](docs/ajustes_dataset_y_preprocesamiento.md) |
+| Ajustes realizados a partir de la devolución del proyecto final | [`docs/ajustes_modelado_y_evaluacion.md`](docs/ajustes_modelado_y_evaluacion.md) |
 
 ---
 
@@ -298,13 +301,13 @@ Estructura generada con la plantilla [Cookiecutter Data Science](https://github.
 ├── data
 │   ├── external       <- Datos de terceros (plantilla, sin uso)
 │   ├── interim        <- Población de estudio con todas las observaciones del panel
-│   ├── processed      <- Dataset final (una fila por persona) y matrices preparadas
+│   ├── processed      <- Dataset final (una fila por persona) y dataset recodificado (entrada de los modelos)
 │   └── raw            <- Bases originales de la EPH, sin modificar
 │
 ├── docs               <- Informe técnico del dataset, descripción del proyecto, ajustes por devoluciones
 │                         e imágenes del README (img/)
 │
-├── models             <- Modelo final entrenado (regresión logística y su umbral)
+├── models             <- Modelo final: Pipeline (preprocesamiento + regresión logística) y umbral
 │
 ├── notebooks          <- Notebooks numeradas: número, iniciales de la autora y descripción
 │                         (1.0 carga y construcción, 2.0 análisis exploratorio, 3.0 preprocesamiento,
